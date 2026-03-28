@@ -1,0 +1,51 @@
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import Logo from '../../assets/Logo.png';
+
+const Navbar = () => {
+  const { user, logout, isAdmin } = useAuth();
+  const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const isActive = (path) => location.pathname === path ? 'active' : '';
+
+  return (
+    <nav className="navbar">
+      <div className="navbar-inner">
+        <Link to="/" className="navbar-brand">
+          <img src={Logo} alt="Milk & Honey Coffee" className="brand-logo" />
+          Milk & Honey
+        </Link>
+
+        <button className="mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+          {menuOpen ? '\u2715' : '\u2630'}
+        </button>
+
+        <ul className={`navbar-links ${menuOpen ? 'open' : ''}`}>
+          <li><Link to="/" className={isActive('/')} onClick={() => setMenuOpen(false)}>Home</Link></li>
+          <li><Link to="/menu" className={isActive('/menu')} onClick={() => setMenuOpen(false)}>Menu</Link></li>
+          <li><Link to="/about" className={isActive('/about')} onClick={() => setMenuOpen(false)}>About</Link></li>
+          <li><Link to="/quote" className={isActive('/quote')} onClick={() => setMenuOpen(false)}>Get a Quote</Link></li>
+
+          {user ? (
+            <>
+              {isAdmin && (
+                <li><Link to="/admin" className={isActive('/admin')} onClick={() => setMenuOpen(false)}>Admin</Link></li>
+              )}
+              <li>
+                <Link to="/" onClick={(e) => { e.preventDefault(); logout(); setMenuOpen(false); }}>
+                  Logout
+                </Link>
+              </li>
+            </>
+          ) : (
+            <li><Link to="/login" className={isActive('/login')} onClick={() => setMenuOpen(false)}>Login</Link></li>
+          )}
+        </ul>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
