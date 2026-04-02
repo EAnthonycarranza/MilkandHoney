@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useDarkMode } from '../../hooks/useDarkMode';
 import Logo from '../../assets/Logo.png';
+import DarkModeLogo from '../../assets/DarkModeLogo.png';
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const isDark = useDarkMode();
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
@@ -14,7 +17,7 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-brand">
-          <img src={Logo} alt="Milk & Honey Coffee" className="brand-logo" />
+          <img src={isDark ? DarkModeLogo : Logo} alt="Milk & Honey Coffee" className="brand-logo" />
           Milk & Honey
         </Link>
 

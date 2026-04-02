@@ -4,6 +4,7 @@ import api, { getImageUrl } from '../../utils/api';
 import { useDarkMode } from '../../hooks/useDarkMode';
 import InstagramFeed from './InstagramFeed';
 import Logo from '../../assets/Logo.png';
+import DarkModeLogo from '../../assets/DarkModeLogo.png';
 
 const Home = () => {
   const [pageContent, setPageContent] = useState(null);
@@ -26,16 +27,17 @@ const Home = () => {
   };
 
   const sections = pageContent?.sections || [];
+  const displayHeroImage = isDark && hero.imageDark ? hero.imageDark : hero.image;
 
   return (
     <div>
       {/* Hero */}
       <section
-        className={`hero ${hero.image ? 'hero-with-image' : ''}`}
-        style={hero.image ? { backgroundImage: `url(${getImageUrl(hero.image)})` } : {}}
+        className={`hero ${displayHeroImage ? 'hero-with-image' : ''}`}
+        style={displayHeroImage ? { backgroundImage: `url(${getImageUrl(displayHeroImage)})` } : {}}
       >
         <div className="hero-content">
-          <img src={Logo} alt="Milk & Honey Coffee" className="hero-logo" />
+          <img src={isDark ? DarkModeLogo : Logo} alt="Milk & Honey Coffee" className="hero-logo" />
           <h1>{hero.title}</h1>
           <p className="subtitle">{hero.subtitle}</p>
           {hero.verse && <p className="verse">{hero.verse}</p>}
