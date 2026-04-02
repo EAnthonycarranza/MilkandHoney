@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import api from '../../utils/api';
 import { useDarkMode } from '../../hooks/useDarkMode';
 
@@ -35,9 +36,11 @@ const QuoteRequest = () => {
   const [error, setError] = useState('');
   const [settings, setSettings] = useState(null);
   const [focusedField, setFocusedField] = useState(null);
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
   const isDark = useDarkMode();
   const locationInputRef = useRef(null);
   const autocompleteRef = useRef(null);
+  const recaptchaRef = useRef(null);
   const minDate = getTomorrowDate();
 
   useEffect(() => {
@@ -104,14 +107,25 @@ const QuoteRequest = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!recaptchaToken) {
+      setError('Please complete the reCAPTCHA verification.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await api.post('/quotes', form);
+      await api.post('/quotes', { ...form, recaptchaToken });
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      // Reset reCAPTCHA on failure so user can re-verify
+      if (recaptchaRef.current) {
+        recaptchaRef.current.reset();
+        setRecaptchaToken(null);
+      }
     } finally {
       setLoading(false);
     }
@@ -351,7 +365,19 @@ const QuoteRequest = () => {
             </div>
           </div>
 
-          <button type="submit" className="quote-submit-btn" disabled={loading}>
+          {process.env.REACT_APP_RECAPTCHA_SITE_KEY && (
+            <div className="quote-recaptcha">
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+                onChange={(token) => setRecaptchaToken(token)}
+                onExpired={() => setRecaptchaToken(null)}
+                theme={isDark ? 'dark' : 'light'}
+              />
+            </div>
+          )}
+
+          <button type="submit" className="quote-submit-btn" disabled={loading || !recaptchaToken}>
             {loading ? (
               <>
                 <span className="quote-spinner"></span>

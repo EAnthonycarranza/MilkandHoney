@@ -1588,6 +1588,13 @@ img {
   background: var(--cream) !important;
 }
 
+/* reCAPTCHA */
+.quote-recaptcha {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
 /* Disclaimer */
 .quote-disclaimer {
   text-align: center;

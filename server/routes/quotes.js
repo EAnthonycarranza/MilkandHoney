@@ -8,7 +8,21 @@ const router = express.Router();
 // Submit a quote request (public — no auth required)
 router.post('/', async (req, res) => {
   try {
-    const { name, email, phone, eventType, eventDate, guestCount, location, details } = req.body;
+    const { name, email, phone, eventType, eventDate, guestCount, location, details, recaptchaToken } = req.body;
+
+    // Verify reCAPTCHA
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    if (secretKey) {
+      if (!recaptchaToken) {
+        return res.status(400).json({ message: 'Please complete the reCAPTCHA verification' });
+      }
+      const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
+      const captchaRes = await fetch(verifyUrl, { method: 'POST' });
+      const captchaData = await captchaRes.json();
+      if (!captchaData.success) {
+        return res.status(400).json({ message: 'reCAPTCHA verification failed. Please try again.' });
+      }
+    }
 
     if (!name || !email || !eventType || !eventDate || !guestCount || !location) {
       return res.status(400).json({ message: 'Please fill in all required fields' });
