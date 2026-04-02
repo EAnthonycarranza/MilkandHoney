@@ -40,11 +40,17 @@ const Menu = () => {
     verse: '"Taste and see that the Lord is good" - Psalm 34:8'
   };
 
+  const isDark = useDarkMode();
+  const displayHeroImage = isDark && hero.imageDark ? hero.imageDark : hero.image;
+
   if (loading) return <div className="loading-spinner">Loading menu...</div>;
 
   return (
     <div>
-      <section className="hero">
+      <section
+        className={`hero ${displayHeroImage ? 'hero-with-image' : ''}`}
+        style={displayHeroImage ? { backgroundImage: `url(${getImageUrl(displayHeroImage)})` } : {}}
+      >
         <div className="hero-content">
           <h1>{hero.title}</h1>
           <p className="subtitle">{hero.subtitle}</p>
@@ -108,11 +114,11 @@ const Menu = () => {
       {/* CTA */}
       <div className="cta-section">
         <div className="section" style={{ textAlign: 'center' }}>
-          <h2 className="section-title" style={{ color: 'var(--white)' }}>Love What You See?</h2>
-          <p style={{ color: 'rgba(255,255,255,0.8)', maxWidth: '550px', margin: '0 auto 1.5rem' }}>
+          <h2 className="section-title">Love What You See?</h2>
+          <p style={{ maxWidth: '550px', margin: '0 auto 1.5rem' }}>
             Book the Milk & Honey Coffee Cart for your next event and let your guests enjoy all of these drinks and more!
           </p>
-          <Link to="/quote" className="btn btn-primary" style={{ background: 'var(--white)', color: 'var(--gold-dark)' }}>
+          <Link to="/quote" className="btn btn-primary">
             Request a Free Quote
           </Link>
         </div>

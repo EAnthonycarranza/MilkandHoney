@@ -6,16 +6,18 @@ const pageContentSchema = new mongoose.Schema({
     title: { type: String, default: '' },
     subtitle: { type: String, default: '' },
     image: { type: String, default: '' },
+    imageDark: { type: String, default: '' },
     verse: { type: String, default: '' }
   },
   sections: [{
     title: { type: String, default: '' },
     content: { type: String, default: '' },
     image: { type: String, default: '' },
+    imageDark: { type: String, default: '' },
     order: { type: Number, default: 0 }
   }],
   instagramPosts: [{
-    url: { type: String, required: true },
+    url: { type: String, default: '' },
     caption: { type: String, default: '' }
   }],
   updatedAt: { type: Date, default: Date.now }

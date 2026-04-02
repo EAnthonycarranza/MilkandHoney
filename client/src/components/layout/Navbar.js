@@ -18,8 +18,10 @@ const Navbar = () => {
           Milk & Honey
         </Link>
 
-        <button className="mobile-toggle" onClick={() => setMenuOpen(!menuOpen)}>
-          {menuOpen ? '\u2715' : '\u2630'}
+        <button className={`mobile-toggle ${menuOpen ? 'open' : ''}`} onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
         </button>
 
         <ul className={`navbar-links ${menuOpen ? 'open' : ''}`}>

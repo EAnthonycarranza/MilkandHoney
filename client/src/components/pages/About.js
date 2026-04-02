@@ -35,11 +35,14 @@ const About = () => {
     }
   ];
 
+  const isDark = useDarkMode();
+  const displayHeroImage = isDark && hero.imageDark ? hero.imageDark : hero.image;
+
   return (
     <div>
       <section
-        className={`hero ${hero.image ? 'hero-with-image' : ''}`}
-        style={hero.image ? { backgroundImage: `url(${getImageUrl(hero.image)})` } : {}}
+        className={`hero ${displayHeroImage ? 'hero-with-image' : ''}`}
+        style={displayHeroImage ? { backgroundImage: `url(${getImageUrl(displayHeroImage)})` } : {}}
       >
         <div className="hero-content">
           <h1>{hero.title}</h1>

@@ -116,6 +116,31 @@ const AdminPages = () => {
     }));
   };
 
+  const uploadHeroImageDark = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('image', file);
+      try {
+        const { data } = await api.post('/pages/upload-image', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        updateHero('imageDark', data.imageUrl);
+      } catch {
+        alert('Failed to upload image');
+      }
+    };
+    input.click();
+  };
+
+  const removeHeroImageDark = () => {
+    updateHero('imageDark', '');
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setMessage('');
@@ -209,11 +234,27 @@ const AdminPages = () => {
                 <input type="text" value={pageContent?.hero?.verse || ''} onChange={e => updateHero('verse', e.target.value)} placeholder="Scripture or inspirational quote..." />
               </div>
               <div className="form-group">
-                <label>Hero Background Image</label>
+                <label>Hero Background Image (Light Mode)</label>
                 <input type="file" accept="image/*" onChange={e => setHeroImage(e.target.files[0])} />
                 {heroImgSrc && (
                   <div className="image-preview" style={{ marginTop: '0.5rem' }}>
-                    <img src={heroImgSrc} alt="Hero" style={{ maxHeight: 150, borderRadius: 8, objectFit: 'cover' }} />
+                    <img src={heroImgSrc} alt="Hero Light" style={{ maxHeight: 150, borderRadius: 8, objectFit: 'cover' }} />
+                  </div>
+                )}
+              </div>
+              <div className="form-group">
+                <label>Hero Background Image (Dark Mode) - Optional</label>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <button className="btn btn-outline btn-sm" onClick={uploadHeroImageDark}>
+                    {pageContent?.hero?.imageDark ? 'Change Dark Image' : 'Upload Dark Image'}
+                  </button>
+                  {pageContent?.hero?.imageDark && (
+                    <button className="btn btn-sm btn-danger" onClick={removeHeroImageDark}>Remove</button>
+                  )}
+                </div>
+                {pageContent?.hero?.imageDark && (
+                  <div className="image-preview" style={{ marginTop: '0.5rem' }}>
+                    <img src={getImageUrl(pageContent.hero.imageDark)} alt="Hero Dark" style={{ maxHeight: 150, borderRadius: 8, objectFit: 'cover' }} />
                   </div>
                 )}
               </div>
@@ -264,18 +305,34 @@ const AdminPages = () => {
                       <span className="char-count">{section.content?.length || 0} characters</span>
                     </div>
                     <div className="form-group">
-                      <label>Section Image</label>
+                      <label>Section Image (Light Mode)</label>
                       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <button className="btn btn-outline btn-sm" onClick={() => uploadSectionImage(i)}>
+                        <button className="btn btn-outline btn-sm" onClick={() => uploadSectionImage(i, false)}>
                           {section.image ? 'Change Image' : 'Upload Image'}
                         </button>
                         {section.image && (
-                          <button className="btn btn-sm btn-danger" onClick={() => removeSectionImage(i)}>Remove</button>
+                          <button className="btn btn-sm btn-danger" onClick={() => removeSectionImage(i, false)}>Remove</button>
                         )}
                       </div>
                       {section.image && (
                         <div className="image-preview" style={{ marginTop: '0.5rem' }}>
-                          <img src={getImageUrl(section.image)} alt="Section" style={{ maxHeight: 120, borderRadius: 8, objectFit: 'cover' }} />
+                          <img src={getImageUrl(section.image)} alt="Section Light" style={{ maxHeight: 120, borderRadius: 8, objectFit: 'cover' }} />
+                        </div>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Section Image (Dark Mode) - Optional</label>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <button className="btn btn-outline btn-sm" onClick={() => uploadSectionImage(i, true)}>
+                          {section.imageDark ? 'Change Image' : 'Upload Image'}
+                        </button>
+                        {section.imageDark && (
+                          <button className="btn btn-sm btn-danger" onClick={() => removeSectionImage(i, true)}>Remove</button>
+                        )}
+                      </div>
+                      {section.imageDark && (
+                        <div className="image-preview" style={{ marginTop: '0.5rem' }}>
+                          <img src={getImageUrl(section.imageDark)} alt="Section Dark" style={{ maxHeight: 120, borderRadius: 8, objectFit: 'cover' }} />
                         </div>
                       )}
                     </div>

@@ -45,25 +45,28 @@ const Home = () => {
       </section>
 
       {/* Content Sections */}
-      {sections.sort((a, b) => a.order - b.order).map((section, i) => (
-        <section key={i} className={i % 2 === 0 ? '' : 'section-alt'}>
-          <div className="section">
-            <div className={`about-section ${i % 2 !== 0 ? 'reverse' : ''}`}>
-              <div>
-                <h3>{section.title}</h3>
-                <p>{section.content}</p>
-              </div>
-              <div className="about-section-image">
-                {section.image ? (
-                  <img src={getImageUrl(section.image)} alt={section.title} />
-                ) : (
-                  <span className="placeholder">{i === 0 ? '\u2615' : '\u2764'}</span>
-                )}
+      {sections.sort((a, b) => a.order - b.order).map((section, i) => {
+        const displaySectionImage = isDark && section.imageDark ? section.imageDark : section.image;
+        return (
+          <section key={i} className={i % 2 === 0 ? '' : 'section-alt'}>
+            <div className="section">
+              <div className={`about-section ${i % 2 === 0 ? '' : 'reverse'}`}>
+                <div className="about-section-text">
+                  <h3>{section.title}</h3>
+                  <p>{section.content}</p>
+                </div>
+                <div className="about-section-image">
+                  {displaySectionImage ? (
+                    <img src={getImageUrl(displaySectionImage)} alt={section.title} />
+                  ) : (
+                    <span className="placeholder">{i === 0 ? '\u2615' : '\u2764'}</span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-      ))}
+          </section>
+        );
+      })}
 
       {/* Services Section */}
       <div className="section-alt">

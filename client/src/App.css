@@ -16,6 +16,21 @@
   --font-sans: 'Lato', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cream: #1e140d;
+    --cream-dark: #2c1d14;
+    --brown: #faf6ee;
+    --brown-light: #d6ccbe;
+    --white: #120c08;
+    --gray: #a1a1aa;
+    --gray-light: #2c1d14;
+    --gold: #c8a951;
+    --gold-light: #e8d48b;
+    --gold-dark: #e8d48b; /* Use lighter gold for better contrast on dark bg */
+  }
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -127,9 +142,43 @@ img {
   display: none;
   background: none;
   border: none;
-  font-size: 1.5rem;
   cursor: pointer;
-  color: var(--brown);
+  width: 30px;
+  height: 24px;
+  position: relative;
+  z-index: 1001;
+}
+
+.hamburger-line {
+  display: block;
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background: var(--brown);
+  border-radius: 3px;
+  opacity: 1;
+  left: 0;
+  transform: rotate(0deg);
+  transition: 0.25s ease-in-out;
+}
+
+.hamburger-line:nth-child(1) { top: 0px; }
+.hamburger-line:nth-child(2) { top: 10px; }
+.hamburger-line:nth-child(3) { top: 20px; }
+
+.mobile-toggle.open .hamburger-line:nth-child(1) {
+  top: 10px;
+  transform: rotate(135deg);
+}
+
+.mobile-toggle.open .hamburger-line:nth-child(2) {
+  opacity: 0;
+  left: -60px;
+}
+
+.mobile-toggle.open .hamburger-line:nth-child(3) {
+  top: 10px;
+  transform: rotate(-135deg);
 }
 
 /* ========== HERO SECTION ========== */
@@ -1138,7 +1187,22 @@ img {
 /* ========== CTA SECTION ========== */
 .cta-section {
   background: linear-gradient(135deg, var(--brown) 0%, var(--brown-light) 100%);
-  padding: 1rem 0;
+  padding: 4rem 1rem;
+  text-align: center;
+  color: var(--white);
+  border-radius: 12px;
+  margin: 2rem 0;
+}
+
+.cta-section h2 {
+  color: var(--white);
+  margin-bottom: 1rem;
+}
+
+.cta-section p {
+  color: var(--white);
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
 }
 
 /* ========== QUOTE FORM STEPS ========== */
@@ -2025,5 +2089,132 @@ img {
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+/* ========== DARK MODE OVERRIDES ========== */
+@media (prefers-color-scheme: dark) {
+  .footer {
+    background: #0d0805;
+    color: var(--brown);
+  }
+
+  .footer a {
+    color: var(--brown-light);
+  }
+  
+  .footer a:hover {
+    color: var(--gold);
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, #1a100a 0%, #2a1b12 100%);
+  }
+
+  .cta-section h2, 
+  .cta-section p, 
+  .cta-section .section-title {
+    color: var(--brown);
+  }
+
+  .scripture-banner {
+    background: #0d0805;
+    color: var(--gold-light);
+  }
+
+  .hero-with-image .hero-content {
+    background: rgba(20, 15, 10, 0.92);
+  }
+
+  /* Admin Panel Overrides */
+  .admin-sidebar {
+    background: var(--cream);
+    border-right: 1px solid var(--cream-dark);
+  }
+
+  .admin-sidebar-links a {
+    color: var(--gray);
+  }
+
+  .admin-sidebar-links a:hover,
+  .admin-sidebar-links a.active {
+    background: var(--cream-dark);
+    color: var(--brown);
+  }
+
+  .admin-form,
+  .order-card,
+  .admin-gallery-item,
+  .section-editor-card {
+    background: var(--cream);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  .stat-card {
+    background: var(--cream);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  .stat-card .stat-value {
+    color: var(--gold);
+  }
+
+  input, select, textarea {
+    background: var(--white);
+    color: var(--brown);
+    border-color: var(--cream-dark);
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+  }
+
+  /* Modals */
+  .modal-content,
+  .delete-modal-content,
+  .crop-modal-content {
+    background: var(--cream);
+    border: 1px solid var(--cream-dark);
+  }
+
+  /* Tables */
+  table {
+    background: var(--cream);
+  }
+
+  th {
+    background: var(--cream-dark);
+    color: var(--brown);
+    border-bottom: 1px solid var(--gray-light);
+  }
+
+  td {
+    border-bottom: 1px solid var(--cream-dark);
+  }
+
+  /* Live Preview Panel */
+  .page-preview-panel {
+    background: var(--cream);
+    border: 1px solid var(--cream-dark);
+  }
+
+  .preview-header {
+    background: var(--cream-dark);
+    border-bottom: 1px solid var(--gray-light);
+  }
+
+  .editor-tab {
+    color: var(--gray);
+    border-bottom-color: var(--cream-dark);
+  }
+
+  .editor-tab:hover {
+    color: var(--brown);
+    background: var(--cream-dark);
+  }
+
+  .editor-tab.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
 }
 
