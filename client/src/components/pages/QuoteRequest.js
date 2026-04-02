@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../../utils/api';
 import { useDarkMode } from '../../hooks/useDarkMode';
 
@@ -20,6 +20,12 @@ const GUEST_COUNTS = [
   { value: '200+', label: '200+ guests' }
 ];
 
+const getTomorrowDate = () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split('T')[0];
+};
+
 const QuoteRequest = () => {
   const [form, setForm] = useState({
     name: '', email: '', phone: '', eventType: '', eventDate: '', guestCount: '', location: '', details: ''
@@ -30,10 +36,66 @@ const QuoteRequest = () => {
   const [settings, setSettings] = useState(null);
   const [focusedField, setFocusedField] = useState(null);
   const isDark = useDarkMode();
+  const locationInputRef = useRef(null);
+  const autocompleteRef = useRef(null);
+  const minDate = getTomorrowDate();
 
   useEffect(() => {
     api.get('/settings/public').then(res => setSettings(res.data)).catch(() => {});
   }, []);
+
+  // Load Google Maps Places API
+  useEffect(() => {
+    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_KEY;
+    if (!apiKey) return;
+    if (window.google && window.google.maps && window.google.maps.places) return;
+    if (document.querySelector('script[src*="maps.googleapis.com"]')) return;
+
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  }, []);
+
+  // Initialize autocomplete when Google Maps is loaded and input is ready
+  const initAutocomplete = useCallback(() => {
+    if (!locationInputRef.current) return;
+    if (autocompleteRef.current) return;
+    if (!window.google || !window.google.maps || !window.google.maps.places) return;
+
+    autocompleteRef.current = new window.google.maps.places.Autocomplete(
+      locationInputRef.current,
+      {
+        types: ['establishment', 'geocode'],
+        componentRestrictions: { country: 'us' }
+      }
+    );
+
+    autocompleteRef.current.addListener('place_changed', () => {
+      const place = autocompleteRef.current.getPlace();
+      if (place && place.formatted_address) {
+        setForm(prev => ({ ...prev, location: place.formatted_address }));
+      } else if (place && place.name) {
+        setForm(prev => ({ ...prev, location: place.name }));
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    // Try to init immediately
+    initAutocomplete();
+
+    // Also poll briefly in case the script is still loading
+    const interval = setInterval(() => {
+      if (window.google && window.google.maps && window.google.maps.places) {
+        initAutocomplete();
+        clearInterval(interval);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [initAutocomplete]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -225,6 +287,7 @@ const QuoteRequest = () => {
                   onFocus={() => setFocusedField('eventDate')}
                   onBlur={() => setFocusedField(null)}
                   required
+                  min={minDate}
                 />
               </div>
               <div className={`quote-field ${focusedField === 'guestCount' ? 'focused' : ''} ${form.guestCount ? 'has-value' : ''}`}>
@@ -252,6 +315,7 @@ const QuoteRequest = () => {
                 </label>
                 <input
                   id="q-location"
+                  ref={locationInputRef}
                   type="text"
                   name="location"
                   value={form.location}
@@ -259,7 +323,8 @@ const QuoteRequest = () => {
                   onFocus={() => setFocusedField('location')}
                   onBlur={() => setFocusedField(null)}
                   required
-                  placeholder="Venue name or address"
+                  placeholder="Search for a venue or address"
+                  autoComplete="off"
                 />
               </div>
             </div>
