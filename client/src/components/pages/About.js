@@ -78,41 +78,44 @@ const About = () => {
       </div>
 
       {/* Contact Info */}
-      <div className="section" style={{ textAlign: 'center' }}>
-        <h2 className="section-title">Get in Touch</h2>
-        <p className="section-subtitle">We'd love to hear from you</p>
-        <div className="contact-info-grid">
-          {settings?.businessEmail && (
-            <div className="contact-card">
-              <span className="contact-icon">{'\u2709'}</span>
-              <h4>Email</h4>
-              <a href={`mailto:${settings.businessEmail}`}>{settings.businessEmail}</a>
+      <section className="contact-section">
+        <div className="contact-section-inner">
+          <h2 className="contact-heading">Get in Touch</h2>
+          <p className="contact-subheading">We'd love to hear from you</p>
+          <div className="contact-grid">
+            {settings?.businessEmail && (
+              <a href={`mailto:${settings.businessEmail}`} className="contact-tile">
+                <div className="contact-tile-icon">{'\u2709\uFE0F'}</div>
+                <h4>Email</h4>
+                <span>{settings.businessEmail}</span>
+              </a>
+            )}
+            {settings?.businessPhone && (
+              <a href={`tel:${settings.businessPhone}`} className="contact-tile">
+                <div className="contact-tile-icon">{'\uD83D\uDCDE'}</div>
+                <h4>Phone</h4>
+                <span>{settings.businessPhone}</span>
+              </a>
+            )}
+            <div className="contact-tile">
+              <div className="contact-tile-icon">{'\uD83D\uDCCD'}</div>
+              <h4>Location</h4>
+              <span>{settings?.businessAddress || 'San Antonio, TX'}</span>
             </div>
-          )}
-          {settings?.businessPhone && (
-            <div className="contact-card">
-              <span className="contact-icon">{'\u260E'}</span>
-              <h4>Phone</h4>
-              <a href={`tel:${settings.businessPhone}`}>{settings.businessPhone}</a>
-            </div>
-          )}
-          <div className="contact-card">
-            <span className="contact-icon">{'\u{1F4CD}'}</span>
-            <h4>Location</h4>
-            <p>{settings?.businessAddress || 'San Antonio, TX'}</p>
-          </div>
-          <div className="contact-card">
-            <span className="contact-icon">{'\u{1F4F7}'}</span>
-            <h4>Instagram</h4>
-            <a href={`https://www.instagram.com/${settings?.instagramHandle || 'milkandhoneycoffeecart'}/`} target="_blank" rel="noopener noreferrer">
-              @{settings?.instagramHandle || 'milkandhoneycoffeecart'}
+            <a
+              href={`https://www.instagram.com/${settings?.instagramHandle || 'milkandhoneycoffeecart'}/`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-tile"
+            >
+              <div className="contact-tile-icon">{'\uD83D\uDCF7'}</div>
+              <h4>Instagram</h4>
+              <span>@{settings?.instagramHandle || 'milkandhoneycoffeecart'}</span>
             </a>
           </div>
+          <Link to="/quote" className="contact-cta-btn">Request a Free Quote</Link>
         </div>
-        <div style={{ marginTop: '2rem' }}>
-          <Link to="/quote" className="btn btn-primary">Request a Free Quote</Link>
-        </div>
-      </div>
+      </section>
     </div>
   );
 };
