@@ -16,14 +16,17 @@ const Menu = () => {
   const [pageContent, setPageContent] = useState(null);
   const [activeCategory, setActiveCategory] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [showPricing, setShowPricing] = useState(false);
 
   useEffect(() => {
     Promise.all([
       api.get('/products?available=true'),
-      api.get('/pages/menu')
-    ]).then(([productsRes, pageRes]) => {
+      api.get('/pages/menu'),
+      api.get('/settings/public')
+    ]).then(([productsRes, pageRes, settingsRes]) => {
       setProducts(productsRes.data);
       setPageContent(pageRes.data);
+      setShowPricing(settingsRes.data.showPricing || false);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
@@ -83,7 +86,10 @@ const Menu = () => {
                   )}
                 </div>
                 <div className="product-card-body">
-                  <h3>{product.name}</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <h3>{product.name}</h3>
+                    {showPricing && <span style={{ fontWeight: 600, color: 'var(--gold-dark)', whiteSpace: 'nowrap' }}>${product.price.toFixed(2)}</span>}
+                  </div>
                   <p>{product.description}</p>
                   {product.tags.length > 0 && (
                     <div className="product-card-tags">

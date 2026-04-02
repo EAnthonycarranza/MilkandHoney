@@ -1974,3 +1974,56 @@ img {
 .preview-section:hover {
   background: var(--cream);
 }
+
+/* ========== DELETE & CROP MODALS ========== */
+.delete-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.delete-modal-content {
+  background: var(--cream);
+  border: 2px solid var(--gold-dark);
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.delete-modal-content h3 {
+  color: var(--coffee);
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.delete-modal-content p {
+  color: var(--gray);
+  margin-bottom: 2rem;
+}
+
+.crop-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: #333;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.crop-modal-content {
+  background: var(--cream);
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+

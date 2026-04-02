@@ -16,6 +16,7 @@ router.get('/public', async (req, res) => {
       businessPhone: settings.businessPhone,
       businessAddress: settings.businessAddress,
       instagramHandle: settings.instagramHandle,
+      showPricing: settings.showPricing,
       hasInstagramToken: !!settings.instagramAccessToken
     });
   } catch (error) {
@@ -49,6 +50,7 @@ router.put('/', adminAuth, async (req, res) => {
     if (businessPhone !== undefined) updateData.businessPhone = businessPhone;
     if (businessAddress !== undefined) updateData.businessAddress = businessAddress;
     if (instagramHandle !== undefined) updateData.instagramHandle = instagramHandle;
+    if (req.body.showPricing !== undefined) updateData.showPricing = req.body.showPricing;
     if (instagramUserId !== undefined) updateData.instagramUserId = instagramUserId;
     // Only update token if a real new value is provided (not the masked one)
     if (instagramAccessToken && !instagramAccessToken.startsWith('••')) {

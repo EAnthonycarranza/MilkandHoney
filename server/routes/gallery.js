@@ -53,6 +53,11 @@ router.post('/', adminAuth, upload.single('image'), uploadToGCS('gallery'), asyn
 router.post('/bulk', adminAuth, upload.array('images', 20), uploadMultipleToGCS('gallery'), async (req, res) => {
   try {
     const { category } = req.body;
+    
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'No images provided or invalid file format' });
+    }
+
     const items = await Promise.all(
       req.files.map((file, i) =>
         Gallery.create({
@@ -90,6 +95,23 @@ router.put('/:id', adminAuth, upload.single('image'), uploadToGCS('gallery'), as
     const item = await Gallery.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!item) return res.status(404).json({ message: 'Gallery item not found' });
     res.json(item);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Proxy gallery image to avoid CORS issues for cropping (admin)
+router.get('/proxy-image/:id', adminAuth, async (req, res) => {
+  try {
+    const item = await Gallery.findById(req.params.id);
+    if (!item || !item.image) return res.status(404).json({ message: 'Image not found' });
+    const https = require('https');
+    const http = require('http');
+    const client = item.image.startsWith('https') ? https : http;
+    client.get(item.image, (proxyRes) => {
+      res.set('Content-Type', proxyRes.headers['content-type'] || 'image/jpeg');
+      proxyRes.pipe(res);
+    }).on('error', () => res.status(500).json({ message: 'Failed to fetch image' }));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

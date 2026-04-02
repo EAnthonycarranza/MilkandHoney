@@ -80,6 +80,29 @@ const AdminSettings = () => {
           <input type="text" value={settings.businessAddress} onChange={e => setSettings({ ...settings, businessAddress: e.target.value })} placeholder="San Antonio, TX" />
         </div>
 
+        {/* Menu Display */}
+        <div style={{ marginTop: '2rem', borderTop: '2px solid var(--cream-dark)', paddingTop: '2rem' }}>
+          <h3 style={{ marginBottom: '0.5rem', color: 'var(--gold-dark)' }}>Menu Display</h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--gray)', marginBottom: '1rem', lineHeight: 1.6 }}>
+            Control how your menu appears to visitors. Since Milk &amp; Honey is currently a coffee cart service,
+            pricing is hidden by default. When you open a standalone location, enable pricing to show prices on the public menu.
+          </p>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', padding: '1rem', background: 'var(--cream)', borderRadius: 12 }}>
+            <input
+              type="checkbox"
+              checked={settings.showPricing || false}
+              onChange={e => setSettings({ ...settings, showPricing: e.target.checked })}
+              style={{ width: 20, height: 20, accentColor: 'var(--gold-dark)' }}
+            />
+            <div>
+              <strong style={{ display: 'block', marginBottom: '0.15rem' }}>Show pricing on public menu</strong>
+              <span style={{ fontSize: '0.8rem', color: 'var(--gray)' }}>
+                {settings.showPricing ? 'Prices are visible to all visitors' : 'Prices are hidden from visitors (coffee cart mode)'}
+              </span>
+            </div>
+          </label>
+        </div>
+
         {/* Instagram Integration */}
         <div style={{ marginTop: '2rem', borderTop: '2px solid var(--cream-dark)', paddingTop: '2rem' }}>
           <h3 style={{ marginBottom: '0.5rem', color: 'var(--gold-dark)' }}>Instagram Integration</h3>

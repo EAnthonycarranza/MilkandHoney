@@ -50,8 +50,8 @@ const uploadToGCS = (folder = 'uploads') => {
     });
 
     blobStream.on('error', (err) => {
-      console.error('GCS upload error:', err);
-      return res.status(500).json({ message: 'Failed to upload image' });
+      console.error('GCS upload error:', err.message, err.code);
+      return res.status(500).json({ message: 'Failed to upload image: ' + err.message });
     });
 
     blobStream.on('finish', () => {
@@ -93,8 +93,8 @@ const uploadMultipleToGCS = (folder = 'uploads') => {
       await Promise.all(uploadPromises);
       next();
     } catch (err) {
-      console.error('GCS multi-upload error:', err);
-      return res.status(500).json({ message: 'Failed to upload images' });
+      console.error('GCS multi-upload error:', err.message, err.code, err.errors);
+      return res.status(500).json({ message: 'Failed to upload images: ' + err.message });
     }
   };
 };

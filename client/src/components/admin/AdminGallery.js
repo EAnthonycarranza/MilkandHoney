@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../utils/api';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '../../utils/cropImage';
 
 const AdminGallery = () => {
   const [items, setItems] = useState([]);
@@ -8,9 +10,19 @@ const AdminGallery = () => {
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState({
-    title: '', caption: '', category: 'other', order: 0, published: true, image: null,
+    title: '', caption: '', category: 'other', order: 0, published: true, image: null, existingImage: null,
   });
   const [bulkForm, setBulkForm] = useState({ category: 'other', images: null });
+
+  // Delete Modal State
+  const [deleteItemId, setDeleteItemId] = useState(null);
+
+  // Crop Modal State
+  const [imageSrc, setImageSrc] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [showCropModal, setShowCropModal] = useState(false);
 
   const fetchItems = () => {
     api.get('/gallery/all')
@@ -32,9 +44,47 @@ const AdminGallery = () => {
     setEditing(item._id);
     setForm({
       title: item.title || '', caption: item.caption || '', category: item.category,
-      order: item.order || 0, published: item.published, image: null,
+      order: item.order || 0, published: item.published, image: null, existingImage: item.image,
     });
     setShowModal(true);
+  };
+
+  const onFileChange = async (e) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      let imageDataUrl = await readFile(file);
+      setImageSrc(imageDataUrl);
+      setShowCropModal(true);
+    }
+  };
+
+  const readFile = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => resolve(reader.result), false);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const showCroppedImage = async () => {
+    try {
+      const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+      setForm({ ...form, image: croppedImageBlob });
+      setShowCropModal(false);
+      setImageSrc(null);
+    } catch (e) {
+      console.error(e);
+      alert('Failed to crop image');
+    }
+  };
+
+  const cancelCrop = () => {
+    setShowCropModal(false);
+    setImageSrc(null);
   };
 
   const handleSubmit = async (e) => {
@@ -45,14 +95,14 @@ const AdminGallery = () => {
     formData.append('category', form.category);
     formData.append('order', form.order);
     formData.append('published', form.published);
-    if (form.image) formData.append('image', form.image);
+    if (form.image) formData.append('image', form.image, 'cropped.jpg');
 
     try {
       if (editing) {
-        await api.put(`/gallery/${editing}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await api.put(`/gallery/${editing}`, formData);
       } else {
         if (!form.image) { alert('Please select an image'); return; }
-        await api.post('/gallery', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await api.post('/gallery', formData);
       }
       setShowModal(false);
       resetForm();
@@ -71,7 +121,7 @@ const AdminGallery = () => {
       formData.append('images', bulkForm.images[i]);
     }
     try {
-      await api.post('/gallery/bulk', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await api.post('/gallery/bulk', formData);
       setShowBulkModal(false);
       setBulkForm({ category: 'other', images: null });
       fetchItems();
@@ -80,11 +130,16 @@ const AdminGallery = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this gallery image?')) return;
+  const requestDelete = (id) => {
+    setDeleteItemId(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteItemId) return;
     try {
-      await api.delete(`/gallery/${id}`);
+      await api.delete(`/gallery/${deleteItemId}`);
       fetchItems();
+      setDeleteItemId(null);
     } catch (err) {
       alert('Failed to delete');
     }
@@ -94,7 +149,7 @@ const AdminGallery = () => {
     try {
       const formData = new FormData();
       formData.append('published', !item.published);
-      await api.put(`/gallery/${item._id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await api.put(`/gallery/${item._id}`, formData);
       fetchItems();
     } catch (err) {
       alert('Failed to update');
@@ -133,7 +188,7 @@ const AdminGallery = () => {
                 {item.published ? 'Unpublish' : 'Publish'}
               </button>
               <button className="btn btn-sm btn-outline" onClick={() => openEdit(item)}>Edit</button>
-              <button className="btn btn-sm btn-danger" onClick={() => handleDelete(item._id)}>Delete</button>
+              <button className="btn btn-sm btn-danger" onClick={() => requestDelete(item._id)}>Delete</button>
             </div>
           </div>
         ))}
@@ -143,6 +198,20 @@ const AdminGallery = () => {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteItemId && (
+        <div className="delete-modal-overlay" onClick={() => setDeleteItemId(null)}>
+          <div className="delete-modal-content" onClick={e => e.stopPropagation()}>
+            <h3>Confirm Deletion</h3>
+            <p>Are you sure you want to delete this image? This action cannot be undone.</p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button className="btn btn-outline" onClick={() => setDeleteItemId(null)}>Cancel</button>
+              <button className="btn btn-danger" onClick={confirmDelete}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Single Upload Modal */}
       {showModal && (
@@ -176,7 +245,29 @@ const AdminGallery = () => {
               </div>
               <div className="form-group">
                 <label>{editing ? 'Replace Image' : 'Image *'}</label>
-                <input type="file" accept="image/*" onChange={e => setForm({...form, image: e.target.files[0]})} />
+                {editing && form.existingImage && !form.image && (
+                  <div style={{ marginBottom: '1rem', textAlign: 'center', background: 'var(--cream-dark)', padding: '1rem', borderRadius: '8px' }}>
+                    <img src={form.existingImage} alt="Current" style={{ width: '100%', maxHeight: '200px', objectFit: 'contain', borderRadius: '8px', marginBottom: '1rem' }} />
+                    <div>
+                      <button type="button" className="btn btn-outline btn-sm" onClick={async () => {
+                        try {
+                          const response = await api.get(`/gallery/proxy-image/${editing}`, { responseType: 'blob' });
+                          const dataUrl = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.readAsDataURL(response.data);
+                          });
+                          setImageSrc(dataUrl);
+                          setShowCropModal(true);
+                        } catch {
+                          alert('Failed to load image for cropping. Please upload a new image instead.');
+                        }
+                      }}>Crop Current Image</button>
+                    </div>
+                  </div>
+                )}
+                <input type="file" accept="image/*" onChange={onFileChange} />
+                {form.image && <p style={{ fontSize: '0.85rem', color: 'var(--gold-dark)', marginTop: '0.5rem' }}>Image selected and cropped successfully.</p>}
               </div>
               <label className="checkbox-label">
                 <input type="checkbox" checked={form.published} onChange={e => setForm({...form, published: e.target.checked})} />
@@ -187,6 +278,42 @@ const AdminGallery = () => {
                 <button type="submit" className="btn btn-primary">{editing ? 'Update' : 'Add Image'}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Crop Modal */}
+      {showCropModal && (
+        <div className="modal-overlay" style={{ zIndex: 3000 }}>
+          <div className="crop-modal-content">
+            <h3>Crop Image</h3>
+            <div className="crop-container">
+              <Cropper
+                image={imageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={4 / 3}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+              />
+            </div>
+            <div className="form-group">
+              <label>Zoom</label>
+              <input 
+                type="range" 
+                value={zoom} 
+                min={1} 
+                max={3} 
+                step={0.1} 
+                onChange={(e) => setZoom(Number(e.target.value))} 
+                style={{ width: '100%' }}
+              />
+            </div>
+            <div className="form-actions" style={{ marginTop: '1.5rem' }}>
+              <button type="button" className="btn btn-outline" onClick={cancelCrop}>Cancel</button>
+              <button type="button" className="btn btn-primary" onClick={showCroppedImage}>Save Crop</button>
+            </div>
           </div>
         </div>
       )}
