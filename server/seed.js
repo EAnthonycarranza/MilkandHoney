@@ -24,7 +24,7 @@ const seedData = async () => {
   const settingsExist = await SiteSettings.findOne();
   if (!settingsExist) {
     await SiteSettings.create({
-      businessEmail: 'milkandhoneycoffeecart@gmail.com',
+      businessEmail: 'Angel@milkandhoney.co',
       businessAddress: 'San Antonio, TX',
       instagramHandle: 'milkandhoneycoffeecart'
     });

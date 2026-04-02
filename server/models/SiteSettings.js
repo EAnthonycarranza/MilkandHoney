@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const siteSettingsSchema = new mongoose.Schema({
   instagramAccessToken: { type: String, default: '' },
   instagramUserId: { type: String, default: '' },
-  businessEmail: { type: String, default: 'milkandhoneycoffeecart@gmail.com' },
+  businessEmail: { type: String, default: 'Angel@milkandhoney.co' },
   businessPhone: { type: String, default: '' },
   businessAddress: { type: String, default: 'San Antonio, TX' },
   instagramHandle: { type: String, default: 'milkandhoneycoffeecart' },
