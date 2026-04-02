@@ -23,6 +23,8 @@ const AdminProducts = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [importing, setImporting] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
+  const [togglingPricing, setTogglingPricing] = useState(false);
 
   const loadProducts = () => {
     api.get('/products').then(res => {
@@ -31,7 +33,22 @@ const AdminProducts = () => {
     });
   };
 
-  useEffect(() => { loadProducts(); }, []);
+  useEffect(() => {
+    loadProducts();
+    api.get('/settings').then(res => setShowPricing(res.data.showPricing || false)).catch(() => {});
+  }, []);
+
+  const togglePricing = async () => {
+    setTogglingPricing(true);
+    try {
+      const { data } = await api.put('/settings', { showPricing: !showPricing });
+      setShowPricing(data.showPricing || false);
+    } catch {
+      alert('Failed to update pricing visibility');
+    } finally {
+      setTogglingPricing(false);
+    }
+  };
 
   const exportCSV = () => {
     const headers = ['Name', 'Description', 'Price', 'Category', 'Tags', 'Available', 'Featured'];
@@ -191,6 +208,34 @@ const AdminProducts = () => {
           </label>
           <button className="btn btn-primary" onClick={openCreate}>+ Add Product</button>
         </div>
+      </div>
+
+      {/* Pricing Visibility Toggle */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0.75rem 1.25rem', marginBottom: '1rem',
+        background: showPricing ? 'rgba(76, 135, 62, 0.08)' : 'var(--cream)',
+        border: `1px solid ${showPricing ? 'rgba(76, 135, 62, 0.25)' : 'var(--cream-dark)'}`,
+        borderRadius: 12
+      }}>
+        <div>
+          <strong style={{ fontSize: '0.9rem' }}>
+            {showPricing ? 'Pricing is visible to customers' : 'Pricing is hidden from customers'}
+          </strong>
+          <p style={{ fontSize: '0.8rem', color: 'var(--gray)', margin: '0.15rem 0 0' }}>
+            {showPricing
+              ? 'Prices are shown on the public menu page'
+              : 'Coffee cart mode — prices are hidden on the public menu page'}
+          </p>
+        </div>
+        <button
+          className={`btn btn-sm ${showPricing ? 'btn-outline' : 'btn-primary'}`}
+          onClick={togglePricing}
+          disabled={togglingPricing}
+          style={{ whiteSpace: 'nowrap' }}
+        >
+          {togglingPricing ? 'Updating...' : (showPricing ? 'Hide Prices' : 'Show Prices')}
+        </button>
       </div>
 
       <div className="admin-table-container">
