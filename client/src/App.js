@@ -6,6 +6,8 @@ import Footer from './components/layout/Footer';
 import Home from './components/pages/Home';
 import Menu from './components/pages/Menu';
 import About from './components/pages/About';
+import Events from './components/pages/Events';
+import Gallery from './components/pages/Gallery';
 import QuoteRequest from './components/pages/QuoteRequest';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
@@ -31,6 +33,8 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/menu" element={<Menu />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/gallery" element={<Gallery />} />
             <Route path="/about" element={<About />} />
             <Route path="/quote" element={<QuoteRequest />} />
             <Route path="/login" element={<Login />} />

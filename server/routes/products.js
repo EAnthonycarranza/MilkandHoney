@@ -1,7 +1,7 @@
 const express = require('express');
 const Product = require('../models/Product');
 const { adminAuth } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { upload, uploadToGCS, deleteFromGCS } = require('../middleware/gcsUpload');
 
 const router = express.Router();
 
@@ -32,7 +32,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create product (admin)
-router.post('/', adminAuth, upload.single('image'), async (req, res) => {
+router.post('/', adminAuth, upload.single('image'), uploadToGCS('products'), async (req, res) => {
   try {
     const { name, description, price, category, tags, available, featured } = req.body;
     const product = await Product.create({
@@ -43,7 +43,7 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
       tags: tags ? JSON.parse(tags) : [],
       available: available !== 'false',
       featured: featured === 'true',
-      image: req.file ? `/uploads/${req.file.filename}` : ''
+      image: req.file?.gcsUrl || '',
     });
     res.status(201).json(product);
   } catch (error) {
@@ -52,7 +52,7 @@ router.post('/', adminAuth, upload.single('image'), async (req, res) => {
 });
 
 // Update product (admin)
-router.put('/:id', adminAuth, upload.single('image'), async (req, res) => {
+router.put('/:id', adminAuth, upload.single('image'), uploadToGCS('products'), async (req, res) => {
   try {
     const { name, description, price, category, tags, available, featured } = req.body;
     const updateData = {};
@@ -64,7 +64,12 @@ router.put('/:id', adminAuth, upload.single('image'), async (req, res) => {
     if (tags) updateData.tags = JSON.parse(tags);
     if (available !== undefined) updateData.available = available === 'true';
     if (featured !== undefined) updateData.featured = featured === 'true';
-    if (req.file) updateData.image = `/uploads/${req.file.filename}`;
+
+    if (req.file?.gcsUrl) {
+      const existing = await Product.findById(req.params.id);
+      if (existing?.image) await deleteFromGCS(existing.image);
+      updateData.image = req.file.gcsUrl;
+    }
 
     const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!product) return res.status(404).json({ message: 'Product not found' });

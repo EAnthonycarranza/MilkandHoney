@@ -22,6 +22,8 @@ app.use('/api/pages', require('./routes/pages'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/instagram', require('./routes/instagram'));
 app.use('/api/settings', require('./routes/settings'));
+app.use('/api/events', require('./routes/events'));
+app.use('/api/gallery', require('./routes/gallery'));
 
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {

@@ -7,6 +7,10 @@ server/node_modules/
 .env
 server/.env
 
+# GCS credentials
+server/config/gcs-key.json
+**/gcs-key.json
+
 # Build output
 client/build/
 

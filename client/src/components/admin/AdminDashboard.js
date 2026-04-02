@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import api from '../../utils/api';
 import AdminProducts from './AdminProducts';
 import AdminQuotes from './AdminQuotes';
+import AdminEvents from './AdminEvents';
+import AdminGallery from './AdminGallery';
 import AdminPages from './AdminPages';
 import AdminSettings from './AdminSettings';
 
@@ -23,6 +25,8 @@ const AdminDashboard = () => {
           <li><Link to="/admin" className={isActive('')}>Dashboard</Link></li>
           <li><Link to="/admin/quotes" className={isActive('/quotes')}>Quote Requests</Link></li>
           <li><Link to="/admin/products" className={isActive('/products')}>Menu Items</Link></li>
+          <li><Link to="/admin/events" className={isActive('/events')}>Events</Link></li>
+          <li><Link to="/admin/gallery" className={isActive('/gallery')}>Gallery</Link></li>
           <li><Link to="/admin/pages" className={isActive('/pages')}>Edit Pages</Link></li>
           <li><Link to="/admin/settings" className={isActive('/settings')}>Settings</Link></li>
         </ul>
@@ -32,6 +36,8 @@ const AdminDashboard = () => {
           <Route index element={<DashboardHome />} />
           <Route path="quotes" element={<AdminQuotes />} />
           <Route path="products" element={<AdminProducts />} />
+          <Route path="events" element={<AdminEvents />} />
+          <Route path="gallery" element={<AdminGallery />} />
           <Route path="pages" element={<AdminPages />} />
           <Route path="settings" element={<AdminSettings />} />
         </Routes>
@@ -75,6 +81,14 @@ const DashboardHome = () => {
         <div className="stat-card">
           <div className="stat-value">{stats?.totalProducts || 0}</div>
           <div className="stat-label">Menu Items</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{stats?.totalEvents || 0}</div>
+          <div className="stat-label">Events</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{stats?.totalGallery || 0}</div>
+          <div className="stat-label">Gallery Images</div>
         </div>
       </div>
 

@@ -42,13 +42,21 @@ router.get('/', adminAuth, async (req, res) => {
   }
 });
 
-// Update quote status/notes (admin)
+// Update quote status/notes/details (admin)
 router.put('/:id', adminAuth, async (req, res) => {
   try {
-    const { status, adminNotes } = req.body;
+    const { status, adminNotes, name, email, phone, eventType, eventDate, guestCount, location, details } = req.body;
     const updateData = {};
-    if (status) updateData.status = status;
+    if (status !== undefined) updateData.status = status;
     if (adminNotes !== undefined) updateData.adminNotes = adminNotes;
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email;
+    if (phone !== undefined) updateData.phone = phone;
+    if (eventType !== undefined) updateData.eventType = eventType;
+    if (eventDate !== undefined) updateData.eventDate = eventDate;
+    if (guestCount !== undefined) updateData.guestCount = guestCount;
+    if (location !== undefined) updateData.location = location;
+    if (details !== undefined) updateData.details = details;
 
     const quote = await Quote.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!quote) return res.status(404).json({ message: 'Quote not found' });

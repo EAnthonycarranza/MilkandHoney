@@ -95,8 +95,8 @@ const sendQuoteConfirmationToCustomer = async (quote) => {
         <div style="padding: 24px;">
           <h2 style="color: #3d2b1f;">Thank you, ${quote.name}!</h2>
           <p style="color: #555; line-height: 1.6;">
-            We've received your quote request and we're excited about the possibility of serving at your event!
-            Our team will review your details and get back to you within 24-48 hours.
+            Your quote request has been successfully submitted! We've received your details and we're excited about the possibility of serving at your event.
+            Our team will review your information and get back to you within 24-48 hours.
           </p>
 
           <div style="background: #fff; border: 1px solid #e8dcc8; border-radius: 8px; padding: 16px; margin: 20px 0;">
