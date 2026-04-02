@@ -22,6 +22,7 @@ const AdminProducts = () => {
   const [image, setImage] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [importing, setImporting] = useState(false);
 
   const loadProducts = () => {
     api.get('/products').then(res => {
@@ -31,6 +32,83 @@ const AdminProducts = () => {
   };
 
   useEffect(() => { loadProducts(); }, []);
+
+  const exportCSV = () => {
+    const headers = ['Name', 'Description', 'Price', 'Category', 'Tags', 'Available', 'Featured'];
+    const rows = products.map(p => [
+      `"${(p.name || '').replace(/"/g, '""')}"`,
+      `"${(p.description || '').replace(/"/g, '""')}"`,
+      p.price,
+      p.category,
+      `"${(p.tags || []).join(', ')}"`,
+      p.available,
+      p.featured,
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `milk-and-honey-menu-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importCSV = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImporting(true);
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const text = evt.target.result;
+        const lines = text.split('\n').filter(l => l.trim());
+        if (lines.length < 2) { alert('CSV file is empty or has no data rows'); setImporting(false); return; }
+
+        // Parse header
+        const header = lines[0].toLowerCase();
+        const hasHeader = header.includes('name') && header.includes('price');
+        const dataLines = hasHeader ? lines.slice(1) : lines;
+
+        let imported = 0;
+        for (const line of dataLines) {
+          // Simple CSV parse (handles quoted fields)
+          const fields = [];
+          let current = '';
+          let inQuotes = false;
+          for (let ch of line) {
+            if (ch === '"') { inQuotes = !inQuotes; }
+            else if (ch === ',' && !inQuotes) { fields.push(current.trim()); current = ''; }
+            else { current += ch; }
+          }
+          fields.push(current.trim());
+
+          const [name, description, price, category, tags, available, featured] = fields;
+          if (!name) continue;
+
+          const formData = new FormData();
+          formData.append('name', name);
+          formData.append('description', description || '');
+          formData.append('price', parseFloat(price) || 0);
+          formData.append('category', category || 'hot-coffee');
+          formData.append('tags', JSON.stringify(tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : []));
+          formData.append('available', available === 'false' ? 'false' : 'true');
+          formData.append('featured', featured === 'true' ? 'true' : 'false');
+
+          await api.post('/products', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          imported++;
+        }
+        alert(`Successfully imported ${imported} menu items!`);
+        loadProducts();
+      } catch (err) {
+        alert('Failed to import CSV: ' + (err.response?.data?.message || err.message));
+      } finally {
+        setImporting(false);
+        e.target.value = '';
+      }
+    };
+    reader.readAsText(file);
+  };
 
   const openCreate = () => {
     setForm(emptyForm);
@@ -102,8 +180,17 @@ const AdminProducts = () => {
   return (
     <div>
       <div className="admin-header">
-        <h2>Products</h2>
-        <button className="btn btn-primary" onClick={openCreate}>+ Add Product</button>
+        <h2>Menu Items</h2>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <button className="btn btn-outline btn-sm" onClick={exportCSV} title="Export menu as CSV">
+            Export CSV
+          </button>
+          <label className="btn btn-outline btn-sm" style={{ cursor: importing ? 'wait' : 'pointer', opacity: importing ? 0.6 : 1 }}>
+            {importing ? 'Importing...' : 'Import CSV'}
+            <input type="file" accept=".csv" onChange={importCSV} style={{ display: 'none' }} disabled={importing} />
+          </label>
+          <button className="btn btn-primary" onClick={openCreate}>+ Add Product</button>
+        </div>
       </div>
 
       <div className="admin-table-container">

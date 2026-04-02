@@ -1,7 +1,7 @@
 const express = require('express');
 const PageContent = require('../models/PageContent');
 const { adminAuth } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { upload, uploadToGCS } = require('../middleware/gcsUpload');
 
 const router = express.Router();
 
@@ -24,7 +24,7 @@ router.get('/:page', async (req, res) => {
 });
 
 // Update page content (admin)
-router.put('/:page', adminAuth, upload.single('image'), async (req, res) => {
+router.put('/:page', adminAuth, upload.single('image'), uploadToGCS('pages'), async (req, res) => {
   try {
     const { hero, sections, instagramPosts } = req.body;
     const updateData = { updatedAt: Date.now() };
@@ -32,12 +32,12 @@ router.put('/:page', adminAuth, upload.single('image'), async (req, res) => {
     if (hero) updateData.hero = JSON.parse(hero);
     if (sections) updateData.sections = JSON.parse(sections);
     if (instagramPosts) updateData.instagramPosts = JSON.parse(instagramPosts);
-    if (req.file) {
+    if (req.file?.gcsUrl) {
       if (!updateData.hero) {
         const existing = await PageContent.findOne({ page: req.params.page });
         updateData.hero = existing?.hero || {};
       }
-      updateData.hero.image = `/uploads/${req.file.filename}`;
+      updateData.hero.image = req.file.gcsUrl;
     }
 
     const content = await PageContent.findOneAndUpdate(
@@ -53,10 +53,10 @@ router.put('/:page', adminAuth, upload.single('image'), async (req, res) => {
 });
 
 // Upload section image (admin)
-router.post('/upload-image', adminAuth, upload.single('image'), async (req, res) => {
+router.post('/upload-image', adminAuth, upload.single('image'), uploadToGCS('pages'), async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ message: 'No image uploaded' });
-    res.json({ imageUrl: `/uploads/${req.file.filename}` });
+    if (!req.file?.gcsUrl) return res.status(400).json({ message: 'No image uploaded' });
+    res.json({ imageUrl: req.file.gcsUrl });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
