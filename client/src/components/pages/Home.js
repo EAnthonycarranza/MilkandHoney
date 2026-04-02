@@ -157,13 +157,13 @@ const Home = () => {
       {/* CTA Section */}
       <div className="cta-section">
         <div className="section" style={{ textAlign: 'center' }}>
-          <h2 className="section-title" style={{ color: 'var(--white)' }}>Ready to Book Your Event?</h2>
-          <p style={{ color: 'rgba(255,255,255,0.8)', maxWidth: '600px', margin: '0 auto 1.5rem', fontSize: '1.1rem' }}>
+          <h2 className="section-title">Ready to Book Your Event?</h2>
+          <p style={{ maxWidth: '600px', margin: '0 auto 1.5rem', fontSize: '1.1rem' }}>
             We'd love to bring the Milk & Honey experience to your next event.
             Request a free, no-obligation quote today!
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/quote" className="btn btn-primary" style={{ background: 'var(--white)', color: 'var(--gold-dark)' }}>
+            <Link to="/quote" className="btn btn-primary">
               Get a Free Quote
             </Link>
             {settings?.businessEmail && (

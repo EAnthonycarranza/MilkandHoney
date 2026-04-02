@@ -1205,7 +1205,519 @@ img {
   font-size: 1.1rem;
 }
 
-/* ========== QUOTE FORM STEPS ========== */
+/* ========== QUOTE PAGE - REDESIGNED ========== */
+.quote-page {
+  background: var(--cream);
+  min-height: 100vh;
+}
+
+.quote-hero {
+  background: linear-gradient(135deg, var(--brown) 0%, var(--brown-light) 100%);
+  padding: 4rem 2rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.quote-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(200,169,81,0.15) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(200,169,81,0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.quote-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.quote-hero-badge {
+  display: inline-block;
+  background: rgba(200,169,81,0.2);
+  color: var(--gold-light);
+  padding: 0.35rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(200,169,81,0.3);
+}
+
+.quote-hero h1 {
+  color: var(--gold-light);
+  font-size: 2.4rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-serif);
+}
+
+.quote-hero-subtitle {
+  color: rgba(255,255,255,0.8);
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.quote-hero-verse {
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+  font-size: 0.9rem;
+  font-family: var(--font-serif);
+}
+
+/* Steps Bar */
+.quote-steps-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: var(--white);
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid var(--cream-dark);
+}
+
+.quote-step-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quote-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.quote-step-text {
+  font-size: 0.85rem;
+  color: var(--brown);
+  font-weight: 500;
+}
+
+.quote-step-divider {
+  width: 30px;
+  height: 2px;
+  background: var(--cream-dark);
+  flex-shrink: 0;
+}
+
+/* Container */
+.quote-container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+/* Alert */
+.quote-alert-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  background: #fef2f2;
+  color: var(--red);
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .quote-alert-error {
+    background: rgba(220,38,38,0.1);
+    border-color: rgba(220,38,38,0.25);
+  }
+}
+
+.quote-alert-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* Section Cards */
+.quote-section-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 1.75rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  border: 1px solid var(--cream-dark);
+  position: relative;
+}
+
+.quote-section-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--gold-dark);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--cream-dark);
+}
+
+/* Field Grid */
+.quote-field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.quote-field-full {
+  grid-column: 1 / -1;
+}
+
+/* Input Fields - Major Redesign */
+.quote-field {
+  position: relative;
+}
+
+.quote-field label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--gray);
+  transition: color 0.2s;
+}
+
+.quote-field.focused label {
+  color: var(--gold-dark);
+}
+
+.quote-field-icon {
+  font-size: 0.9rem;
+}
+
+.quote-field input,
+.quote-field textarea,
+.quote-field select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--cream-dark);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: var(--font-sans);
+  background: var(--cream);
+  color: var(--brown);
+  transition: all 0.25s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.quote-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='%236b7280'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .quote-field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='%23a1a1aa'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  }
+}
+
+.quote-field input::placeholder,
+.quote-field textarea::placeholder {
+  color: var(--gray);
+  opacity: 0.6;
+}
+
+.quote-field input:focus,
+.quote-field textarea:focus,
+.quote-field select:focus {
+  outline: none;
+  border-color: var(--gold);
+  background: var(--white);
+  box-shadow: 0 0 0 4px rgba(200,169,81,0.12);
+}
+
+.quote-field.has-value input,
+.quote-field.has-value textarea,
+.quote-field.has-value select {
+  border-color: var(--gold-light);
+  background: var(--white);
+}
+
+.quote-field textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Event Type Selection - Card Grid */
+.quote-event-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.quote-event-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.85rem 0.5rem;
+  border: 2px solid var(--cream-dark);
+  border-radius: 12px;
+  background: var(--cream);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+}
+
+.quote-event-type-btn:hover {
+  border-color: var(--gold-light);
+  background: var(--white);
+  transform: translateY(-1px);
+}
+
+.quote-event-type-btn.active {
+  border-color: var(--gold);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(200,169,81,0.15);
+}
+
+.quote-event-type-icon {
+  font-size: 1.4rem;
+}
+
+.quote-event-type-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--brown);
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Submit Button */
+.quote-submit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(200,169,81,0.3);
+  margin-top: 0.5rem;
+}
+
+.quote-submit-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(200,169,81,0.4);
+}
+
+.quote-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.quote-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.quote-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: quote-spin 0.6s linear infinite;
+}
+
+@keyframes quote-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Disclaimer */
+.quote-disclaimer {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--gray);
+}
+
+/* Success Page */
+.quote-success-page {
+  min-height: calc(100vh - 72px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--cream);
+}
+
+.quote-success-card {
+  background: var(--white);
+  padding: 3rem 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  border: 1px solid var(--cream-dark);
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+}
+
+.quote-success-icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.quote-success-card h2 {
+  color: var(--gold-dark);
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.quote-success-verse {
+  color: var(--gray);
+  font-style: italic;
+  font-family: var(--font-serif);
+  margin-bottom: 1.5rem;
+}
+
+.quote-success-text {
+  color: var(--gray);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.quote-success-contact {
+  color: var(--gray);
+  font-size: 0.9rem;
+}
+
+.quote-success-contact a {
+  color: var(--gold-dark);
+  font-weight: 600;
+}
+
+/* ========== QUOTE PAGE MOBILE ========== */
+@media (max-width: 768px) {
+  .quote-hero {
+    padding: 3rem 1.25rem 2rem;
+  }
+
+  .quote-hero h1 {
+    font-size: 1.75rem;
+  }
+
+  .quote-hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .quote-container {
+    padding: 1.25rem 1rem 2rem;
+  }
+
+  .quote-steps-bar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .quote-step-divider {
+    display: none;
+  }
+
+  .quote-step-item {
+    flex: 1;
+    min-width: 90px;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.3rem;
+  }
+
+  .quote-step-text {
+    font-size: 0.75rem;
+  }
+
+  .quote-section-card {
+    padding: 1.25rem;
+    border-radius: 14px;
+  }
+
+  .quote-field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quote-field input,
+  .quote-field textarea,
+  .quote-field select {
+    padding: 0.9rem 1rem;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    border-radius: 10px;
+  }
+
+  .quote-event-type-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .quote-event-type-btn {
+    padding: 0.7rem 0.25rem;
+  }
+
+  .quote-event-type-icon {
+    font-size: 1.2rem;
+  }
+
+  .quote-event-type-label {
+    font-size: 0.68rem;
+  }
+
+  .quote-submit-btn {
+    padding: 1rem;
+    font-size: 1rem;
+    border-radius: 12px;
+  }
+
+  .quote-success-card {
+    padding: 2rem 1.5rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .quote-event-type-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .quote-hero h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* ========== QUOTE FORM STEPS (legacy) ========== */
 .how-it-works {
   display: flex;
   gap: 1.5rem;
