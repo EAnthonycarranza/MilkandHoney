@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api, { getImageUrl } from '../../utils/api';
+import { useDarkMode } from '../../hooks/useDarkMode';
 
 const CATEGORIES = [
   { value: 'all', label: 'All' },

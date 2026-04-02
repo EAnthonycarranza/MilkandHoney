@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api, { getImageUrl } from '../../utils/api';
+import { useDarkMode } from '../../hooks/useDarkMode';
 import InstagramFeed from './InstagramFeed';
 import Logo from '../../assets/Logo.png';
 
@@ -8,6 +9,7 @@ const Home = () => {
   const [pageContent, setPageContent] = useState(null);
   const [featuredItems, setFeaturedItems] = useState([]);
   const [settings, setSettings] = useState(null);
+  const isDark = useDarkMode();
 
   useEffect(() => {
     api.get('/pages/home').then(res => setPageContent(res.data)).catch(() => {});
