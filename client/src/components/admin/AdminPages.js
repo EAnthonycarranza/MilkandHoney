@@ -70,7 +70,7 @@ const AdminPages = () => {
     });
   };
 
-  const uploadSectionImage = async (index) => {
+  const uploadSectionImage = async (index, isDark = false) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -83,7 +83,7 @@ const AdminPages = () => {
         const { data } = await api.post('/pages/upload-image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        updateSection(index, 'image', data.imageUrl);
+        updateSection(index, isDark ? 'imageDark' : 'image', data.imageUrl);
       } catch {
         alert('Failed to upload image');
       }
@@ -91,8 +91,8 @@ const AdminPages = () => {
     input.click();
   };
 
-  const removeSectionImage = (index) => {
-    updateSection(index, 'image', '');
+  const removeSectionImage = (index, isDark = false) => {
+    updateSection(index, isDark ? 'imageDark' : 'image', '');
   };
 
   const addInstagramPost = () => {
