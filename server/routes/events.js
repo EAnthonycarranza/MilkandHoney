@@ -40,13 +40,14 @@ router.get('/:id', async (req, res) => {
 // Create event (admin)
 router.post('/', adminAuth, upload.single('image'), uploadToGCS('events'), async (req, res) => {
   try {
-    const { title, description, date, time, location, eventType, featured, published } = req.body;
+    const { title, description, date, time, location, locationName, eventType, featured, published } = req.body;
     const event = await Event.create({
       title,
-      description,
+      description: description || '',
       date,
       time: time || '',
       location,
+      locationName: locationName || '',
       eventType: eventType || 'other',
       featured: featured === 'true',
       published: published !== 'false',
@@ -61,14 +62,15 @@ router.post('/', adminAuth, upload.single('image'), uploadToGCS('events'), async
 // Update event (admin)
 router.put('/:id', adminAuth, upload.single('image'), uploadToGCS('events'), async (req, res) => {
   try {
-    const { title, description, date, time, location, eventType, featured, published } = req.body;
+    const { title, description, date, time, location, locationName, eventType, featured, published } = req.body;
     const updateData = {};
 
     if (title) updateData.title = title;
-    if (description) updateData.description = description;
+    if (description !== undefined) updateData.description = description;
     if (date) updateData.date = date;
     if (time !== undefined) updateData.time = time;
     if (location) updateData.location = location;
+    if (locationName !== undefined) updateData.locationName = locationName;
     if (eventType) updateData.eventType = eventType;
     if (featured !== undefined) updateData.featured = featured === 'true';
     if (published !== undefined) updateData.published = published === 'true';

@@ -70,7 +70,10 @@ const Events = () => {
                         <div className="event-card-meta">
                           <span>&#128197; {formatDate(event.date)}</span>
                           {event.time && <span>&#128336; {event.time}</span>}
-                          <span>&#128205; {event.location}</span>
+                          <span>
+                            &#128205; {event.locationName ? <strong>{event.locationName} - </strong> : ''} 
+                            {event.location}
+                          </span>
                         </div>
                         <p>{event.description}</p>
                       </div>
@@ -103,7 +106,10 @@ const Events = () => {
                         <div className="event-card-meta">
                           <span>&#128197; {formatDate(event.date)}</span>
                           {event.time && <span>&#128336; {event.time}</span>}
-                          <span>&#128205; {event.location}</span>
+                          <span>
+                            &#128205; {event.locationName ? <strong>{event.locationName} - </strong> : ''} 
+                            {event.location}
+                          </span>
                         </div>
                         <p>{event.description}</p>
                       </div>

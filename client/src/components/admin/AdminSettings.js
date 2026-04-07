@@ -18,6 +18,7 @@ const AdminSettings = () => {
   // Password reset state
   const [passwordForm, setPasswordResetForm] = useState({
     currentPassword: '',
+    confirmCurrentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
@@ -63,8 +64,12 @@ const AdminSettings = () => {
     e.preventDefault();
     setPasswordMessage({ text: '', type: '' });
 
+    if (passwordForm.currentPassword !== passwordForm.confirmCurrentPassword) {
+      return setPasswordMessage({ text: 'Current passwords do not match', type: 'error' });
+    }
+
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      return setPasswordMessage({ text: 'Passwords do not match', type: 'error' });
+      return setPasswordMessage({ text: 'New passwords do not match', type: 'error' });
     }
 
     if (passwordForm.newPassword.length < 8) {
@@ -87,7 +92,7 @@ const AdminSettings = () => {
         newPassword: passwordForm.newPassword
       });
       setPasswordMessage({ text: 'Password updated successfully!', type: 'success' });
-      setPasswordResetForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setPasswordResetForm({ currentPassword: '', confirmCurrentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
       setPasswordMessage({ 
         text: err.response?.data?.message || 'Failed to update password', 
@@ -142,16 +147,29 @@ const AdminSettings = () => {
           )}
 
           <form onSubmit={handlePasswordReset}>
-            <div className="form-group">
-              <label>Current Password</label>
-              <input 
-                type="password" 
-                value={passwordForm.currentPassword} 
-                onChange={e => setPasswordResetForm({ ...passwordForm, currentPassword: e.target.value })} 
-                required 
-              />
-            </div>
             <div className="admin-form" style={{ padding: 0, boxShadow: 'none' }}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Current Password</label>
+                  <input 
+                    type="password" 
+                    value={passwordForm.currentPassword} 
+                    onChange={e => setPasswordResetForm({ ...passwordForm, currentPassword: e.target.value })} 
+                    required 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Confirm Current Password</label>
+                  <input 
+                    type="password" 
+                    value={passwordForm.confirmCurrentPassword} 
+                    onChange={e => setPasswordResetForm({ ...passwordForm, confirmCurrentPassword: e.target.value })} 
+                    required 
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="admin-form" style={{ padding: 0, boxShadow: 'none', marginTop: '1rem' }}>
               <div className="form-row">
                 <div className="form-group">
                   <label>New Password</label>

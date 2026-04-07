@@ -10,7 +10,6 @@ const Gallery = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [lightbox, setLightbox] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     api.get('/gallery')
@@ -22,7 +21,6 @@ const Gallery = () => {
   // Reset to page 1 when category changes
   useEffect(() => {
     setCurrentPage(1);
-    setShowAll(false);
   }, [activeCategory]);
 
   const categories = [
@@ -38,14 +36,14 @@ const Gallery = () => {
   
   // Pagination logic
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginatedItems = showAll ? filtered : filtered.slice(
+  const paginatedItems = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
   const openLightbox = (index) => {
     // index is relative to paginatedItems, need absolute index in filtered
-    const absoluteIndex = showAll ? index : (currentPage - 1) * ITEMS_PER_PAGE + index;
+    const absoluteIndex = (currentPage - 1) * ITEMS_PER_PAGE + index;
     setLightbox(absoluteIndex);
   };
   
@@ -91,16 +89,6 @@ const Gallery = () => {
               ))}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
-              <button 
-                className="btn btn-outline btn-sm" 
-                onClick={() => setShowAll(!showAll)}
-                style={{ fontSize: '0.8rem' }}
-              >
-                {showAll ? 'Show Paginated' : 'View All Photos'}
-              </button>
-            </div>
-
             {filtered.length > 0 ? (
               <>
                 <div className="gallery-grid">
@@ -116,7 +104,7 @@ const Gallery = () => {
                 </div>
 
                 {/* Pagination Dots */}
-                {totalPages > 1 && !showAll && (
+                {totalPages > 1 && (
                   <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginTop: '3rem' }}>
                     {[...Array(totalPages)].map((_, i) => (
                       <button

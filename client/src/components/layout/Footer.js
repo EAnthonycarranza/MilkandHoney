@@ -49,7 +49,12 @@ const Footer = () => {
           "He brought us to this place and gave us this land flowing with milk & honey"
         </p>
         <p>Deuteronomy 26:9</p>
-        <p className="mt-1">&copy; {new Date().getFullYear()} Milk & Honey Coffee Cart. All rights reserved.</p>
+        <div style={{ marginTop: '1rem', fontSize: '0.8rem', opacity: 0.8 }}>
+          &copy; {new Date().getFullYear()} Milk & Honey Coffee Cart. All rights reserved.
+          <div style={{ marginTop: '0.5rem' }}>
+            Website created by <a href="https://codingcarranza.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold-light)', textDecoration: 'underline' }}>Coding Carranza LLC</a>
+          </div>
+        </div>
       </div>
     </footer>
   );

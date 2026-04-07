@@ -17,8 +17,9 @@ const AdminGallery = () => {
   // Delete Modal State
   const [deleteItemId, setDeleteItemId] = useState(null);
 
-  // Preview State
+  // Preview States
   const [previewItem, setPreviewItem] = useState(null);
+  const [showAllPreview, setShowAllPreview] = useState(false);
 
   // Drag and Drop State
   const [draggedItemIndex, setDraggedItemIndex] = useState(null);
@@ -215,6 +216,7 @@ const AdminGallery = () => {
       <div className="admin-header">
         <h2>Gallery</h2>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button className="btn btn-outline" onClick={() => setShowAllPreview(true)}>Preview All</button>
           <button className="btn btn-outline" onClick={() => setShowBulkModal(true)}>Bulk Upload</button>
           <button className="btn btn-primary" onClick={openCreate}>+ Add Image</button>
         </div>
@@ -269,7 +271,7 @@ const AdminGallery = () => {
         )}
       </div>
 
-      {/* Preview Modal */}
+      {/* Preview Item Modal */}
       {previewItem && (
         <div className="lightbox-overlay" onClick={() => setPreviewItem(null)}>
           <div className="lightbox-content" onClick={e => e.stopPropagation()}>
@@ -279,6 +281,29 @@ const AdminGallery = () => {
               <h4>{previewItem.title || 'Gallery Preview'}</h4>
               <p>{previewItem.caption}</p>
               <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>Category: {categoryLabels[previewItem.category]}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preview All Modal */}
+      {showAllPreview && (
+        <div className="modal-overlay" onClick={() => setShowAllPreview(false)}>
+          <div className="modal-content" style={{ maxWidth: '95vw', width: '95vw' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3>Gallery Preview (All Photos)</h3>
+              <button className="btn btn-outline btn-sm" onClick={() => setShowAllPreview(false)}>Close</button>
+            </div>
+            <div className="gallery-grid">
+              {items.filter(i => i.published).map(item => (
+                <div key={item._id} className="gallery-item">
+                  <img src={item.image} alt={item.title} />
+                  <div className="gallery-item-overlay">
+                    {item.title && <h4>{item.title}</h4>}
+                    {item.caption && <p>{item.caption}</p>}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
