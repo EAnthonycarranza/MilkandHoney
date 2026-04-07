@@ -68,8 +68,16 @@ const uploadToGCS = (folder = 'uploads') => {
     });
 
     blobStream.on('error', (err) => {
-      console.error('GCS upload error:', err.message, err.code);
-      return res.status(500).json({ message: 'Failed to upload image: ' + err.message });
+      console.error('GCS upload error details:', {
+        message: err.message,
+        code: err.code,
+        errors: err.errors,
+        stack: err.stack
+      });
+      return res.status(500).json({ 
+        message: 'Failed to upload image to Google Cloud Storage',
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error'
+      });
     });
 
     blobStream.on('finish', () => {
