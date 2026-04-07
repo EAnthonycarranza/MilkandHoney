@@ -20,6 +20,7 @@ const AdminGallery = () => {
   // Preview States
   const [previewItem, setPreviewItem] = useState(null);
   const [showAllPreview, setShowAllPreview] = useState(false);
+  const [previewCategory, setPreviewCategory] = useState('all');
 
   // Drag and Drop State
   const [draggedItemIndex, setDraggedItemIndex] = useState(null);
@@ -166,9 +167,7 @@ const AdminGallery = () => {
   // Drag and Drop Handlers
   const handleDragStart = (e, index) => {
     setDraggedItemIndex(index);
-    // Setting effectAllowed to move
     e.dataTransfer.effectAllowed = "move";
-    // Optional: make the drag image just the image part or a cleaner preview
     const dragImg = e.target.closest('.admin-gallery-item');
     if (dragImg) {
       e.dataTransfer.setDragImage(dragImg, 0, 0);
@@ -176,7 +175,7 @@ const AdminGallery = () => {
   };
 
   const handleDragOver = (e, index) => {
-    e.preventDefault(); // Required to allow drop
+    e.preventDefault();
     if (draggedItemIndex === null || draggedItemIndex === index) return;
 
     const reorderedItems = [...items];
@@ -191,7 +190,6 @@ const AdminGallery = () => {
   const handleDragEnd = async () => {
     setDraggedItemIndex(null);
     
-    // Save new order to backend
     try {
       const orderUpdates = items.map((item, index) => ({
         id: item._id,
@@ -201,13 +199,26 @@ const AdminGallery = () => {
     } catch (err) {
       console.error('Failed to save order:', err);
       alert('Failed to save image order');
-      fetchItems(); // Reset to original order from DB on failure
+      fetchItems();
     }
   };
+
+  const categories = [
+    { key: 'all', label: 'All' },
+    { key: 'events', label: 'Events' },
+    { key: 'menu', label: 'Menu' },
+    { key: 'behind-the-scenes', label: 'Behind the Scenes' },
+    { key: 'setup', label: 'Cart Setup' },
+    { key: 'other', label: 'Other' },
+  ];
 
   const categoryLabels = {
     events: 'Events', menu: 'Menu', 'behind-the-scenes': 'Behind the Scenes', setup: 'Cart Setup', other: 'Other',
   };
+
+  const filteredPreviewItems = previewCategory === 'all' 
+    ? items.filter(i => i.published) 
+    : items.filter(i => i.published && i.category === previewCategory);
 
   if (loading) return <div className="loading-spinner">Loading gallery...</div>;
 
@@ -216,7 +227,7 @@ const AdminGallery = () => {
       <div className="admin-header">
         <h2>Gallery</h2>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button className="btn btn-outline" onClick={() => setShowAllPreview(true)}>Preview All</button>
+          <button className="btn btn-outline" onClick={() => setShowAllPreview(true)}>Preview Page</button>
           <button className="btn btn-outline" onClick={() => setShowBulkModal(true)}>Bulk Upload</button>
           <button className="btn btn-primary" onClick={openCreate}>+ Add Image</button>
         </div>
@@ -233,7 +244,6 @@ const AdminGallery = () => {
             className={`admin-gallery-item ${draggedItemIndex === index ? 'dragging' : ''}`}
             onDragOver={(e) => handleDragOver(e, index)}
           >
-            {/* Dedicated Drag Handle */}
             <div 
               className="drag-handle" 
               draggable 
@@ -286,24 +296,71 @@ const AdminGallery = () => {
         </div>
       )}
 
-      {/* Preview All Modal */}
+      {/* Preview All "Page" Modal */}
       {showAllPreview && (
-        <div className="modal-overlay" onClick={() => setShowAllPreview(false)}>
-          <div className="modal-content" style={{ maxWidth: '95vw', width: '95vw' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h3>Gallery Preview (All Photos)</h3>
-              <button className="btn btn-outline btn-sm" onClick={() => setShowAllPreview(false)}>Close</button>
+        <div className="modal-overlay" style={{ zIndex: 5000 }} onClick={() => setShowAllPreview(false)}>
+          <div 
+            className="modal-content" 
+            style={{ maxWidth: '100vw', width: '100vw', height: '100vh', maxHeight: '100vh', borderRadius: 0, padding: 0, overflowY: 'auto' }} 
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--brown)', color: 'white', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Live Preview: Public Gallery (Full Page View)</span>
+              <button className="btn btn-primary btn-sm" onClick={() => setShowAllPreview(false)}>Exit Preview</button>
             </div>
-            <div className="gallery-grid">
-              {items.filter(i => i.published).map(item => (
-                <div key={item._id} className="gallery-item">
-                  <img src={item.image} alt={item.title} />
-                  <div className="gallery-item-overlay">
-                    {item.title && <h4>{item.title}</h4>}
-                    {item.caption && <p>{item.caption}</p>}
-                  </div>
+
+            {/* Mocked Public Gallery View */}
+            <div style={{ background: 'var(--white)' }}>
+              <section className="hero">
+                <div className="hero-content">
+                  <h1>Gallery</h1>
+                  <p className="subtitle">A glimpse into the Milk & Honey experience</p>
+                  <p className="verse">"Taste and see that the Lord is good." — Psalm 34:8</p>
                 </div>
-              ))}
+              </section>
+
+              <section className="section">
+                <div className="category-filter">
+                  {categories.map(cat => (
+                    <button
+                      key={cat.key}
+                      className={`category-btn ${previewCategory === cat.key ? 'active' : ''}`}
+                      onClick={() => setPreviewCategory(cat.key)}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                <p style={{ textAlign: 'center', color: 'var(--gray)', marginBottom: '2rem', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                  Showing all published photos in this preview.
+                </p>
+
+                {filteredPreviewItems.length > 0 ? (
+                  <div className="gallery-grid">
+                    {filteredPreviewItems.map((item) => (
+                      <div key={item._id} className="gallery-item">
+                        <img src={item.image} alt={item.title || 'Gallery image'} />
+                        <div className="gallery-item-overlay">
+                          {item.title && <h4>{item.title}</h4>}
+                          {item.caption && <p>{item.caption}</p>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '3rem' }}>
+                    <h3 style={{ color: 'var(--gold-dark)' }}>No Published Photos</h3>
+                    <p style={{ color: 'var(--gray)', marginTop: '0.5rem' }}>Select some photos to publish first!</p>
+                  </div>
+                )}
+              </section>
+
+              <section className="cta-section" style={{ marginBottom: 0 }}>
+                <h2>Love What You See?</h2>
+                <p>Let us bring the Milk & Honey experience to your next event</p>
+                <button className="btn btn-primary" disabled>Request a Free Quote</button>
+              </section>
             </div>
           </div>
         </div>
