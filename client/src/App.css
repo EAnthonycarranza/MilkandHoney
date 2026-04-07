@@ -4402,3 +4402,27 @@ a.contact-tile:hover span {
   }
 }
 
+
+/* Quote Selection Styles */
+.order-card.selected {
+  border-color: var(--gold);
+  background-color: rgba(200, 169, 81, 0.05);
+  box-shadow: 0 0 0 2px var(--gold);
+}
+
+.mobile-only-checkbox {
+  display: none;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .mobile-only-checkbox {
+    display: block;
+  }
+  
+  .order-card div[style*="left: -30px"] {
+    display: none !important;
+  }
+}

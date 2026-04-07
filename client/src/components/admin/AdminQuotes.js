@@ -9,6 +9,12 @@ const AdminQuotes = () => {
   const [filterStatus, setFilterStatus] = useState('');
   const [expandedId, setExpandedId] = useState(null);
   
+  // State for multi-selection
+  const [selectedIds, setSelectedIds] = useState([]);
+  
+  // State for delete confirmation modal
+  const [deleteModal, setDeleteModal] = useState({ show: false, ids: [] });
+
   // State for editing a quote
   const [editingId, setEditingId] = useState(null);
   const [editFormData, setEditFormData] = useState({});
@@ -21,7 +27,10 @@ const AdminQuotes = () => {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { loadQuotes(); }, [filterStatus]);
+  useEffect(() => { 
+    loadQuotes(); 
+    setSelectedIds([]); // Reset selection when filter changes
+  }, [filterStatus]);
 
   const updateQuote = async (id, data) => {
     try {
@@ -30,12 +39,46 @@ const AdminQuotes = () => {
     } catch { alert('Failed to update quote'); }
   };
 
-  const deleteQuote = async (id) => {
-    if (!window.confirm('Delete this quote request?')) return;
+  const openDeleteModal = (ids) => {
+    setDeleteModal({ show: true, ids: Array.isArray(ids) ? ids : [ids] });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal({ show: false, ids: [] });
+  };
+
+  const confirmDelete = async () => {
     try {
-      await api.delete(`/quotes/${id}`);
+      if (deleteModal.ids.length === 1) {
+        await api.delete(`/quotes/${deleteModal.ids[0]}`);
+      } else {
+        // Assuming there's a bulk delete endpoint or we delete in loop
+        // For robustness, we'll do them in parallel if no bulk endpoint
+        await Promise.all(deleteModal.ids.map(id => api.delete(`/quotes/${id}`)));
+      }
+      setSelectedIds(prev => prev.filter(id => !deleteModal.ids.includes(id)));
       loadQuotes();
-    } catch { alert('Failed to delete quote'); }
+      closeDeleteModal();
+    } catch { 
+      alert('Failed to delete quote(s)'); 
+      closeDeleteModal();
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === quotes.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(quotes.map(q => q._id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter(i => i !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
   };
 
   const handleEditClick = (quote) => {
@@ -92,7 +135,15 @@ const AdminQuotes = () => {
     <div>
       <div className="admin-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <h2>Quote Requests</h2>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          {selectedIds.length > 0 && (
+            <button 
+              onClick={() => openDeleteModal(selectedIds)} 
+              className="btn btn-danger btn-sm"
+            >
+              Delete Selected ({selectedIds.length})
+            </button>
+          )}
           <button onClick={exportToCSV} className="btn btn-outline" style={{ padding: '0.5rem 1rem' }}>
             Export to CSV
           </button>
@@ -107,26 +158,54 @@ const AdminQuotes = () => {
         </div>
       </div>
 
+      <div style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <input 
+          type="checkbox" 
+          checked={quotes.length > 0 && selectedIds.length === quotes.length}
+          onChange={toggleSelectAll}
+          style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+        />
+        <span style={{ fontSize: '0.9rem', color: 'var(--gray)' }}>Select All</span>
+      </div>
+
       {quotes.length === 0 ? (
         <p style={{ textAlign: 'center', padding: '2rem', color: 'var(--gray)' }}>No quote requests found.</p>
       ) : (
         quotes.map(q => (
-          <div key={q._id} className="order-card">
+          <div key={q._id} className={`order-card ${selectedIds.includes(q._id) ? 'selected' : ''}`} style={{ position: 'relative' }}>
+            <div style={{ position: 'absolute', left: '-30px', top: '24px' }}>
+              <input 
+                type="checkbox" 
+                checked={selectedIds.includes(q._id)}
+                onChange={() => toggleSelect(q._id)}
+                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+              />
+            </div>
+            
             <div className="order-card-header">
-              <div>
-                {editingId === q._id ? (
-                  <input
-                    type="text"
-                    value={editFormData.name}
-                    onChange={e => setEditFormData({...editFormData, name: e.target.value})}
-                    style={{ fontSize: '1.1rem', fontWeight: 'bold', padding: '0.2rem', marginBottom: '0.2rem', width: '100%', border: '1px solid #ccc', borderRadius: '4px' }}
-                  />
-                ) : (
-                  <strong style={{ fontSize: '1.1rem' }}>{q.name}</strong>
-                )}
-                <p style={{ fontSize: '0.85rem', color: 'var(--gray)' }}>
-                  {new Date(q.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                </p>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+                <input 
+                  type="checkbox" 
+                  checked={selectedIds.includes(q._id)}
+                  onChange={() => toggleSelect(q._id)}
+                  className="mobile-only-checkbox"
+                  style={{ marginTop: '0.25rem' }}
+                />
+                <div>
+                  {editingId === q._id ? (
+                    <input
+                      type="text"
+                      value={editFormData.name}
+                      onChange={e => setEditFormData({...editFormData, name: e.target.value})}
+                      style={{ fontSize: '1.1rem', fontWeight: 'bold', padding: '0.2rem', marginBottom: '0.2rem', width: '100%', border: '1px solid #ccc', borderRadius: '4px' }}
+                    />
+                  ) : (
+                    <strong style={{ fontSize: '1.1rem' }}>{q.name}</strong>
+                  )}
+                  <p style={{ fontSize: '0.85rem', color: 'var(--gray)' }}>
+                    {new Date(q.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </p>
+                </div>
               </div>
               <span className={`status-badge status-${q.status === 'new' ? 'pending' : q.status}`}>{q.status}</span>
             </div>
@@ -215,13 +294,30 @@ const AdminQuotes = () => {
                       {expandedId === q._id ? 'Hide Notes' : 'Notes'}
                     </button>
                     <a href={`mailto:${q.email}`} className="btn btn-primary btn-sm">Reply</a>
-                    <button className="btn btn-danger btn-sm" onClick={() => deleteQuote(q._id)}>Delete</button>
+                    <button className="btn btn-danger btn-sm" onClick={() => openDeleteModal(q._id)}>Delete</button>
                   </>
                 )}
               </div>
             </div>
           </div>
         ))
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.show && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Confirm Deletion</h3>
+            <p>
+              Are you sure you want to delete {deleteModal.ids.length === 1 ? 'this quote request' : `these ${deleteModal.ids.length} quote requests`}? 
+              This action cannot be undone.
+            </p>
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={closeDeleteModal}>Cancel</button>
+              <button className="btn btn-danger" onClick={confirmDelete}>Delete</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
