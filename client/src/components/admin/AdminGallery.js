@@ -221,7 +221,7 @@ const AdminGallery = () => {
       </div>
 
       <p style={{ fontSize: '0.85rem', color: 'var(--gray)', marginBottom: '1rem' }}>
-        Tip: Use the handle ( <i className="fas fa-grip-vertical"></i> ) to drag and reorder images.
+        Tip: Use the handle ( <i className="fas fa-arrows-alt"></i> ) to drag and reorder images.
       </p>
 
       <div className={`admin-gallery-grid ${draggedItemIndex !== null ? 'is-dragging' : ''}`}>
@@ -239,7 +239,7 @@ const AdminGallery = () => {
               onDragEnd={handleDragEnd}
               title="Drag to reorder"
             >
-              <i className="fas fa-grip-vertical"></i>
+              <i className="fas fa-arrows-alt"></i>
             </div>
 
             <div className="admin-gallery-img" onClick={() => setPreviewItem(item)} style={{ cursor: 'zoom-in' }}>
