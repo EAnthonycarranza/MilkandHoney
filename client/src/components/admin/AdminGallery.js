@@ -21,7 +21,7 @@ const AdminGallery = () => {
   const [previewItem, setPreviewItem] = useState(null);
 
   // Drag and Drop State
-  const [draggedItemIndex, setDraggedItemId] = useState(null);
+  const [draggedItemIndex, setDraggedItemIndex] = useState(null);
 
   // Crop Modal State
   const [imageSrc, setImageSrc] = useState(null);
@@ -163,32 +163,32 @@ const AdminGallery = () => {
   };
 
   // Drag and Drop Handlers
-  const onDragStart = (e, index) => {
-    setDraggedItemId(index);
+  const handleDragStart = (e, index) => {
+    setDraggedItemIndex(index);
+    // Setting effectAllowed to move
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/html", e.target.parentNode);
-    e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
+    // Optional: make the drag image just the image part or a cleaner preview
+    const dragImg = e.target.closest('.admin-gallery-item');
+    if (dragImg) {
+      e.dataTransfer.setDragImage(dragImg, 0, 0);
+    }
   };
 
-  const onDragOver = (index) => {
-    const draggedOverItem = items[index];
+  const handleDragOver = (e, index) => {
+    e.preventDefault(); // Required to allow drop
+    if (draggedItemIndex === null || draggedItemIndex === index) return;
 
-    // if the item is dragged over itself, ignore
-    if (items[draggedItemIndex] === draggedOverItem) {
-      return;
-    }
-
-    // filter out the currently dragged item of the list
-    let reorderedItems = items.filter(item => item !== items[draggedItemIndex]);
-
-    // add the dragged item after the dragged over item
-    reorderedItems.splice(index, 0, items[draggedItemIndex]);
-
+    const reorderedItems = [...items];
+    const itemToMove = reorderedItems[draggedItemIndex];
+    reorderedItems.splice(draggedItemIndex, 1);
+    reorderedItems.splice(index, 0, itemToMove);
+    
+    setDraggedItemIndex(index);
     setItems(reorderedItems);
   };
 
-  const onDragEnd = async () => {
-    setDraggedItemId(null);
+  const handleDragEnd = async () => {
+    setDraggedItemIndex(null);
     
     // Save new order to backend
     try {
@@ -200,7 +200,7 @@ const AdminGallery = () => {
     } catch (err) {
       console.error('Failed to save order:', err);
       alert('Failed to save image order');
-      fetchItems(); // Reset to original order on failure
+      fetchItems(); // Reset to original order from DB on failure
     }
   };
 
@@ -221,24 +221,31 @@ const AdminGallery = () => {
       </div>
 
       <p style={{ fontSize: '0.85rem', color: 'var(--gray)', marginBottom: '1rem' }}>
-        Tip: Drag and drop images to change their display order.
+        Tip: Use the handle ( <i className="fas fa-grip-vertical"></i> ) to drag and reorder images.
       </p>
 
-      <div className="admin-gallery-grid">
+      <div className={`admin-gallery-grid ${draggedItemIndex !== null ? 'is-dragging' : ''}`}>
         {items.map((item, index) => (
           <div 
             key={item._id} 
             className={`admin-gallery-item ${draggedItemIndex === index ? 'dragging' : ''}`}
-            draggable
-            onDragStart={(e) => onDragStart(e, index)}
-            onDragOver={() => onDragOver(index)}
-            onDragEnd={onDragEnd}
-            style={{ cursor: 'move' }}
+            onDragOver={(e) => handleDragOver(e, index)}
           >
+            {/* Dedicated Drag Handle */}
+            <div 
+              className="drag-handle" 
+              draggable 
+              onDragStart={(e) => handleDragStart(e, index)}
+              onDragEnd={handleDragEnd}
+              title="Drag to reorder"
+            >
+              <i className="fas fa-grip-vertical"></i>
+            </div>
+
             <div className="admin-gallery-img" onClick={() => setPreviewItem(item)} style={{ cursor: 'zoom-in' }}>
               <img src={item.image} alt={item.title || 'Gallery'} />
               {!item.published && <span className="draft-badge">Draft</span>}
-              <div className="gallery-item-overlay" style={{ opacity: 0.2 }}>
+              <div className="gallery-item-overlay" style={{ opacity: 0 }}>
                 <i className="fas fa-search-plus" style={{ color: 'white', fontSize: '1.5rem' }}></i>
               </div>
             </div>

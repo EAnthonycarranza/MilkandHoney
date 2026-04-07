@@ -4437,3 +4437,37 @@ a.contact-tile:hover span {
   transform: scale(0.95);
   border: 2px dashed var(--gold);
 }
+
+/* Drag and Drop Improvements */
+.admin-gallery-grid.is-dragging .admin-gallery-item * {
+  pointer-events: none;
+}
+
+.admin-gallery-item {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.drag-handle {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brown);
+  cursor: grab !important;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  pointer-events: auto !important;
+}
+
+.admin-gallery-item.dragging {
+  opacity: 0.2;
+  transform: scale(0.9);
+  border: 2px solid var(--gold);
+}
