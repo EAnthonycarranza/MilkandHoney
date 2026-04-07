@@ -25,6 +25,11 @@ const AdminProducts = () => {
   const [showPricing, setShowPricing] = useState(false);
   const [togglingPricing, setTogglingPricing] = useState(false);
 
+  // Multi-selection state
+  const [selectedIds, setSelectedIds] = useState([]);
+  // Delete confirmation modal state
+  const [deleteModal, setDeleteModal] = useState({ show: false, ids: [] });
+
   const loadProducts = () => {
     api.get('/products').then(res => {
       setProducts(res.data);
@@ -181,13 +186,39 @@ const AdminProducts = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this product?')) return;
+  const openDeleteModal = (ids) => {
+    setDeleteModal({ show: true, ids: Array.isArray(ids) ? ids : [ids] });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal({ show: false, ids: [] });
+  };
+
+  const confirmDelete = async () => {
     try {
-      await api.delete(`/products/${id}`);
+      await Promise.all(deleteModal.ids.map(id => api.delete(`/products/${id}`)));
+      setSelectedIds(prev => prev.filter(id => !deleteModal.ids.includes(id)));
       loadProducts();
+      closeDeleteModal();
     } catch (err) {
-      alert('Failed to delete product');
+      alert('Failed to delete product(s)');
+      closeDeleteModal();
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === products.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(products.map(p => p._id));
+    }
+  };
+
+  const toggleSelect = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter(i => i !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
     }
   };
 
@@ -197,7 +228,15 @@ const AdminProducts = () => {
     <div>
       <div className="admin-header">
         <h2>Menu Items</h2>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          {selectedIds.length > 0 && (
+            <button 
+              className="btn btn-danger btn-sm" 
+              onClick={() => openDeleteModal(selectedIds)}
+            >
+              Delete Selected ({selectedIds.length})
+            </button>
+          )}
           <button className="btn btn-outline btn-sm" onClick={exportCSV} title="Export menu as CSV">
             Export CSV
           </button>
@@ -241,6 +280,14 @@ const AdminProducts = () => {
         <table className="admin-table">
           <thead>
             <tr>
+              <th style={{ width: '40px' }}>
+                <input 
+                  type="checkbox" 
+                  checked={products.length > 0 && selectedIds.length === products.length}
+                  onChange={toggleSelectAll}
+                  style={{ cursor: 'pointer' }}
+                />
+              </th>
               <th>Image</th>
               <th>Name</th>
               <th>Category</th>
@@ -252,7 +299,15 @@ const AdminProducts = () => {
           </thead>
           <tbody>
             {products.map(p => (
-              <tr key={p._id}>
+              <tr key={p._id} className={selectedIds.includes(p._id) ? 'selected-row' : ''}>
+                <td>
+                  <input 
+                    type="checkbox" 
+                    checked={selectedIds.includes(p._id)}
+                    onChange={() => toggleSelect(p._id)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </td>
                 <td>
                   <div style={{ width: 45, height: 45, borderRadius: 6, overflow: 'hidden', background: 'var(--cream)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {p.image ? <img src={getImageUrl(p.image)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <i className="fas fa-mug-hot" style={{ color: 'var(--brown)', opacity: 0.3 }}></i>}
@@ -261,12 +316,12 @@ const AdminProducts = () => {
                 <td><strong>{p.name}</strong></td>
                 <td>{CATEGORIES.find(c => c.value === p.category)?.label}</td>
                 <td>${p.price.toFixed(2)}</td>
-                <td><span className={`status-badge ${p.available ? 'status-completed' : 'status-cancelled'}`}>{p.available ? 'Available' : 'Unavailable'}</span></td>
+                <td><span className={`status-badge ${p.available ? 'status-booked' : 'status-cancelled'}`}>{p.available ? 'Available' : 'Unavailable'}</span></td>
                 <td>{p.featured ? 'Yes' : 'No'}</td>
                 <td>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <button className="btn btn-outline btn-sm" onClick={() => openEdit(p)}>Edit</button>
-                    <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p._id)}>Delete</button>
+                    <button className="btn btn-danger btn-sm" onClick={() => openDeleteModal(p._id)}>Delete</button>
                   </div>
                 </td>
               </tr>
@@ -340,6 +395,23 @@ const AdminProducts = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.show && (
+        <div className="modal-overlay" onClick={closeDeleteModal}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3>Confirm Deletion</h3>
+            <p>
+              Are you sure you want to delete {deleteModal.ids.length === 1 ? 'this menu item' : `these ${deleteModal.ids.length} menu items`}? 
+              This action cannot be undone.
+            </p>
+            <div className="modal-actions">
+              <button className="btn btn-outline" onClick={closeDeleteModal}>Cancel</button>
+              <button className="btn btn-danger" onClick={confirmDelete}>Delete</button>
+            </div>
           </div>
         </div>
       )}

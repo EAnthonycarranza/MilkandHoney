@@ -4426,3 +4426,8 @@ a.contact-tile:hover span {
     display: none !important;
   }
 }
+
+.admin-table tr.selected-row {
+  background-color: rgba(200, 169, 81, 0.05);
+  box-shadow: inset 4px 0 0 var(--gold);
+}
