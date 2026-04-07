@@ -49,26 +49,43 @@ const Register = () => {
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Full Name</label>
-            <input type="text" name="name" value={form.name} onChange={handleChange} required placeholder="Your name" />
+            <div className="auth-input-wrapper">
+              <i className="fas fa-user"></i>
+              <input type="text" name="name" value={form.name} onChange={handleChange} required placeholder="Your name" />
+            </div>
           </div>
           <div className="form-group">
             <label>Email</label>
-            <input type="email" name="email" value={form.email} onChange={handleChange} required placeholder="your@email.com" />
+            <div className="auth-input-wrapper">
+              <i className="fas fa-envelope"></i>
+              <input type="email" name="email" value={form.email} onChange={handleChange} required placeholder="your@email.com" />
+            </div>
           </div>
           <div className="form-group">
             <label>Phone (optional)</label>
-            <input type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="(555) 123-4567" />
+            <div className="auth-input-wrapper">
+              <i className="fas fa-phone"></i>
+              <input type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="(555) 123-4567" />
+            </div>
           </div>
           <div className="form-group">
             <label>Password</label>
-            <input type="password" name="password" value={form.password} onChange={handleChange} required placeholder="At least 6 characters" />
+            <div className="auth-input-wrapper">
+              <i className="fas fa-lock"></i>
+              <input type="password" name="password" value={form.password} onChange={handleChange} required placeholder="At least 6 characters" />
+            </div>
           </div>
           <div className="form-group">
             <label>Confirm Password</label>
-            <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" />
+            <div className="auth-input-wrapper">
+              <i className="fas fa-shield-alt"></i>
+              <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange} required placeholder="Confirm your password" />
+            </div>
           </div>
           <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
-            {loading ? 'Creating Account...' : 'Create Account'}
+            {loading ? (
+              <><i className="fas fa-spinner fa-spin"></i> Creating Account...</>
+            ) : 'Create Account'}
           </button>
         </form>
 

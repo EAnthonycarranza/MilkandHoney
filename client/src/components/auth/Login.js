@@ -72,13 +72,16 @@ const Login = () => {
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label>Email</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  required
-                  placeholder="your@email.com"
-                />
+                <div className="auth-input-wrapper">
+                  <i className="fas fa-envelope"></i>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                    placeholder="your@email.com"
+                  />
+                </div>
               </div>
               <div className="form-group">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -91,16 +94,21 @@ const Login = () => {
                     Forgot Password?
                   </button>
                 </div>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                  placeholder="Enter your password"
-                />
+                <div className="auth-input-wrapper">
+                  <i className="fas fa-lock"></i>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    placeholder="Enter your password"
+                  />
+                </div>
               </div>
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? (
+                  <><i className="fas fa-spinner fa-spin"></i> Signing in...</>
+                ) : 'Sign In'}
               </button>
             </form>
 
@@ -120,16 +128,21 @@ const Login = () => {
             <form onSubmit={handleForgotSubmit}>
               <div className="form-group">
                 <label>Email Address</label>
-                <input
-                  type="email"
-                  value={forgotEmail}
-                  onChange={e => setForgotEmail(e.target.value)}
-                  required
-                  placeholder="your@email.com"
-                />
+                <div className="auth-input-wrapper">
+                  <i className="fas fa-envelope"></i>
+                  <input
+                    type="email"
+                    value={forgotEmail}
+                    onChange={e => setForgotEmail(e.target.value)}
+                    required
+                    placeholder="your@email.com"
+                  />
+                </div>
               </div>
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={sendingForgot}>
-                {sendingForgot ? 'Sending...' : 'Send Reset Link'}
+                {sendingForgot ? (
+                  <><i className="fas fa-spinner fa-spin"></i> Sending...</>
+                ) : 'Send Reset Link'}
               </button>
 
               {showRegisterSuggestion && (
