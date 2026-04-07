@@ -15,6 +15,15 @@ const AdminSettings = () => {
   const [message, setMessage] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
+  // Password reset state
+  const [passwordForm, setPasswordResetForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordMessage, setPasswordMessage] = useState({ text: '', type: '' });
+  const [resettingPassword, setPasswordResetting] = useState(false);
+
   useEffect(() => {
     api.get('/settings')
       .then(res => setSettings(res.data))
@@ -50,6 +59,45 @@ const AdminSettings = () => {
     }
   };
 
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    setPasswordMessage({ text: '', type: '' });
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      return setPasswordMessage({ text: 'Passwords do not match', type: 'error' });
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      return setPasswordMessage({ text: 'New password must be at least 8 characters long', type: 'error' });
+    }
+
+    // Password strength check (simplified)
+    const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/;
+    if (!strongRegex.test(passwordForm.newPassword)) {
+      return setPasswordMessage({ 
+        text: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.', 
+        type: 'error' 
+      });
+    }
+
+    setPasswordResetting(true);
+    try {
+      await api.put('/auth/update-password', {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword
+      });
+      setPasswordMessage({ text: 'Password updated successfully!', type: 'success' });
+      setPasswordResetForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      setPasswordMessage({ 
+        text: err.response?.data?.message || 'Failed to update password', 
+        type: 'error' 
+      });
+    } finally {
+      setPasswordResetting(false);
+    }
+  };
+
   if (loading) return <div className="loading-spinner">Loading settings...</div>;
 
   return (
@@ -78,6 +126,59 @@ const AdminSettings = () => {
         <div className="form-group">
           <label>Business Address / Location</label>
           <input type="text" value={settings.businessAddress} onChange={e => setSettings({ ...settings, businessAddress: e.target.value })} placeholder="San Antonio, TX" />
+        </div>
+
+        {/* Password Reset Section */}
+        <div style={{ marginTop: '2rem', borderTop: '2px solid var(--cream-dark)', paddingTop: '2rem' }}>
+          <h3 style={{ marginBottom: '1rem', color: 'var(--gold-dark)' }}>Account Password</h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--gray)', marginBottom: '1.5rem' }}>
+            Update your admin account password. Ensure you use a strong, unique password.
+          </p>
+          
+          {passwordMessage.text && (
+            <div className={`alert alert-${passwordMessage.type}`} style={{ marginBottom: '1.5rem' }}>
+              {passwordMessage.text}
+            </div>
+          )}
+
+          <form onSubmit={handlePasswordReset}>
+            <div className="form-group">
+              <label>Current Password</label>
+              <input 
+                type="password" 
+                value={passwordForm.currentPassword} 
+                onChange={e => setPasswordResetForm({ ...passwordForm, currentPassword: e.target.value })} 
+                required 
+              />
+            </div>
+            <div className="admin-form" style={{ padding: 0, boxShadow: 'none' }}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>New Password</label>
+                  <input 
+                    type="password" 
+                    value={passwordForm.newPassword} 
+                    onChange={e => setPasswordResetForm({ ...passwordForm, newPassword: e.target.value })} 
+                    required 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Confirm New Password</label>
+                  <input 
+                    type="password" 
+                    value={passwordForm.confirmPassword} 
+                    onChange={e => setPasswordResetForm({ ...passwordForm, confirmPassword: e.target.value })} 
+                    required 
+                  />
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <button type="submit" className="btn btn-outline" disabled={resettingPassword}>
+                {resettingPassword ? 'Updating...' : 'Update Password'}
+              </button>
+            </div>
+          </form>
         </div>
 
         {/* Menu Display */}

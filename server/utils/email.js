@@ -143,7 +143,57 @@ const sendQuoteConfirmationToCustomer = async (quote) => {
   }
 };
 
+const sendPasswordResetEmail = async (email, resetUrl) => {
+  const mailOptions = {
+    from: `"Milk & Honey Coffee Cart" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: 'Password Reset Request - Milk & Honey Coffee Cart',
+    html: `
+      <div style="font-family: 'Georgia', serif; max-width: 600px; margin: 0 auto; background: #faf6ee; border: 1px solid #c8a951; border-radius: 12px; overflow: hidden;">
+        <div style="background: #3d2b1f; padding: 24px; text-align: center;">
+          <h1 style="color: #c8a951; margin: 0; font-size: 24px;">Password Reset</h1>
+          <p style="color: #faf6ee; margin: 8px 0 0; font-size: 14px;">Milk & Honey Coffee Cart</p>
+        </div>
+        <div style="padding: 24px; text-align: center;">
+          <h2 style="color: #3d2b1f;">Hello,</h2>
+          <p style="color: #555; line-height: 1.6; font-size: 16px;">
+            You are receiving this email because you (or someone else) have requested the reset of the password for your account.
+          </p>
+          <p style="color: #555; line-height: 1.6; font-size: 16px;">
+            Please click on the button below to complete the process:
+          </p>
+          
+          <div style="margin: 32px 0;">
+            <a href="${resetUrl}" style="display: inline-block; background: #c8a951; color: #fff; padding: 14px 36px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 4px 12px rgba(200, 169, 81, 0.3);">Reset My Password</a>
+          </div>
+
+          <p style="color: #888; font-size: 14px; line-height: 1.6;">
+            If you did not request this, please ignore this email and your password will remain unchanged.
+          </p>
+          
+          <p style="color: #888; font-size: 12px; margin-top: 24px; word-break: break-all;">
+            If you're having trouble clicking the button, copy and paste the link below into your web browser:<br/>
+            <a href="${resetUrl}" style="color: #c8a951;">${resetUrl}</a>
+          </p>
+        </div>
+        <div style="background: #3d2b1f; padding: 16px; text-align: center;">
+          <p style="color: #c8a951; margin: 0; font-size: 12px; font-style: italic;">"He brought us to this place and gave us this land flowing with milk & honey" — Deuteronomy 26:9</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Password reset email sent to:', email);
+  } catch (error) {
+    console.error('Failed to send password reset email:', error.message);
+    throw new Error('Could not send reset email');
+  }
+};
+
 module.exports = {
   sendQuoteNotificationToAdmin,
   sendQuoteConfirmationToCustomer,
+  sendPasswordResetEmail,
 };

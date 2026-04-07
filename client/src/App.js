@@ -12,6 +12,7 @@ import Gallery from './components/pages/Gallery';
 import QuoteRequest from './components/pages/QuoteRequest';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import ResetPassword from './components/auth/ResetPassword';
 import AdminDashboard from './components/admin/AdminDashboard';
 import './App.css';
 
@@ -41,6 +42,7 @@ const AppContent = () => {
             <Route path="/quote" element={<QuoteRequest />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/admin/*" element={
               <AdminRoute><AdminDashboard /></AdminRoute>
             } />
