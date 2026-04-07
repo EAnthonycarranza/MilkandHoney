@@ -4,27 +4,36 @@ const path = require('path');
 
 // Support both key file path (local) and JSON string (Heroku)
 let storageOptions = {};
-if (process.env.GCS_KEY_JSON) {
+const gcsKeyJson = process.env.GCS_KEY_JSON;
+
+if (gcsKeyJson) {
   try {
-    let keyJson = process.env.GCS_KEY_JSON.trim();
+    let keyJson = gcsKeyJson.trim();
+    
+    // Debug logging for Heroku (showing only metadata, not the key itself)
+    console.log(`GCS_KEY_JSON found. Length: ${keyJson.length}, Starts with: ${keyJson[0]}, Ends with: ${keyJson[keyJson.length-1]}`);
+
     // Strip surrounding single quotes if they exist
     if (keyJson.startsWith("'") && keyJson.endsWith("'")) {
       keyJson = keyJson.slice(1, -1);
     }
+    
     const credentials = JSON.parse(keyJson);
+    
     // Ensure private_key has correct newline formatting
     if (credentials.private_key) {
       credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
     }
+    
     storageOptions = { credentials };
-    console.log('Successfully initialized GCS with GCS_KEY_JSON');
+    console.log('Successfully parsed GCS_KEY_JSON and initialized Storage');
   } catch (err) {
     console.error('Failed to parse GCS_KEY_JSON from environment:', err.message);
     // Fallback to file if parsing fails
     storageOptions = { keyFilename: process.env.GCS_KEY_FILE || path.join(__dirname, '../config/gcs-key.json') };
   }
 } else {
-  console.log('GCS_KEY_JSON not found, falling back to keyFilename');
+  console.log('GCS_KEY_JSON not found in environment, falling back to keyFilename');
   storageOptions = { keyFilename: process.env.GCS_KEY_FILE || path.join(__dirname, '../config/gcs-key.json') };
 }
 
