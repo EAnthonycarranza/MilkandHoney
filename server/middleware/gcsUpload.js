@@ -5,7 +5,13 @@ const path = require('path');
 // Support both key file path (local) and JSON string (Heroku)
 let storageOptions = {};
 if (process.env.GCS_KEY_JSON) {
-  storageOptions = { credentials: JSON.parse(process.env.GCS_KEY_JSON) };
+  try {
+    storageOptions = { credentials: JSON.parse(process.env.GCS_KEY_JSON) };
+  } catch (err) {
+    console.error('Failed to parse GCS_KEY_JSON from environment:', err.message);
+    // Fallback to file if parsing fails
+    storageOptions = { keyFilename: process.env.GCS_KEY_FILE || path.join(__dirname, '../config/gcs-key.json') };
+  }
 } else {
   storageOptions = { keyFilename: process.env.GCS_KEY_FILE || path.join(__dirname, '../config/gcs-key.json') };
 }
