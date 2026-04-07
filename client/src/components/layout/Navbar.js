@@ -14,7 +14,7 @@ const Navbar = () => {
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
   const handleLinkClick = () => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setMenuOpen(false);
   };
 
