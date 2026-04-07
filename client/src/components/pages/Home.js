@@ -18,7 +18,24 @@ const Home = () => {
       setFeaturedItems(res.data.filter(p => p.featured).slice(0, 4));
     }).catch(() => {});
     api.get('/settings/public').then(res => setSettings(res.data)).catch(() => {});
-  }, []);
+
+    // Scroll reveal observer
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('menu-reveal--visible');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const revealElements = document.querySelectorAll('.menu-reveal');
+    revealElements.forEach(el => observer.observe(el));
+
+    return () => revealElements.forEach(el => observer.unobserve(el));
+  }, [pageContent, featuredItems]); // Re-run when content is loaded
 
   const hero = pageContent?.hero || {
     title: 'Milk & Honey Coffee Cart',
@@ -52,7 +69,7 @@ const Home = () => {
       {sections.sort((a, b) => a.order - b.order).map((section, i) => {
         const displaySectionImage = isDark && section.imageDark ? section.imageDark : section.image;
         return (
-          <section key={i} className={i % 2 === 0 ? '' : 'section-alt'}>
+          <section key={i} className={`menu-reveal ${i % 2 === 0 ? '' : 'section-alt'}`}>
             <div className="section">
               <div className={`about-section ${i % 2 === 0 ? '' : 'reverse'}`}>
                 <div className="about-section-text">
@@ -73,38 +90,50 @@ const Home = () => {
       })}
 
       {/* Services Section */}
-      <div className="section-alt">
+      <div className="section-alt menu-reveal">
         <div className="section">
           <h2 className="section-title">What We Offer</h2>
           <p className="section-subtitle">Professional mobile coffee cart service for any occasion</p>
           <div className="services-grid">
             <div className="service-card">
-              <span className="service-icon">{'\u{1F492}'}</span>
+              <div className="service-icon-wrapper">
+                <i className="fas fa-church service-icon-fa"></i>
+              </div>
               <h3>Weddings</h3>
               <p>Make your special day even sweeter with a custom coffee bar for your guests.</p>
             </div>
             <div className="service-card">
-              <span className="service-icon">{'\u{26EA}'}</span>
+              <div className="service-icon-wrapper">
+                <i className="fas fa-cross service-icon-fa"></i>
+              </div>
               <h3>Church Events</h3>
               <p>Fellowship is better with coffee. Let us serve your congregation with love.</p>
             </div>
             <div className="service-card">
-              <span className="service-icon">{'\u{1F3E2}'}</span>
+              <div className="service-icon-wrapper">
+                <i className="fas fa-building service-icon-fa"></i>
+              </div>
               <h3>Corporate Events</h3>
               <p>Impress clients and energize your team with a professional coffee cart experience.</p>
             </div>
             <div className="service-card">
-              <span className="service-icon">{'\u{1F389}'}</span>
+              <div className="service-icon-wrapper">
+                <i className="fas fa-cake-candles service-icon-fa"></i>
+              </div>
               <h3>Parties & Celebrations</h3>
               <p>Birthdays, anniversaries, graduations — we bring the party fuel.</p>
             </div>
             <div className="service-card">
-              <span className="service-icon">{'\u{1F91D}'}</span>
+              <div className="service-icon-wrapper">
+                <i className="fas fa-users service-icon-fa"></i>
+              </div>
               <h3>Community Events</h3>
               <p>Festivals, fundraisers, and neighborhood gatherings — we're there to serve.</p>
             </div>
             <div className="service-card">
-              <span className="service-icon">{'\u2B50'}</span>
+              <div className="service-icon-wrapper">
+                <i className="fas fa-star service-icon-fa"></i>
+              </div>
               <h3>Custom Events</h3>
               <p>Have something unique in mind? We'll tailor our service to fit your vision.</p>
             </div>
@@ -113,14 +142,14 @@ const Home = () => {
       </div>
 
       {/* Scripture Banner */}
-      <div className="scripture-banner">
+      <div className="scripture-banner menu-reveal">
         "Your mindset is the engine. Your faith is the fuel. Start showing up."
         <span className="scripture-ref">- Milk & Honey Coffee</span>
       </div>
 
       {/* Featured Menu Preview */}
       {featuredItems.length > 0 && (
-        <div className="section">
+        <div className="section menu-reveal">
           <h2 className="section-title">What We Serve</h2>
           <p className="section-subtitle">"Taste and see that the Lord is good" - Psalm 34:8</p>
           <div className="products-grid">
@@ -155,7 +184,7 @@ const Home = () => {
       <InstagramFeed />
 
       {/* CTA Section */}
-      <div className="cta-section">
+      <div className="cta-section menu-reveal">
         <div className="section" style={{ textAlign: 'center' }}>
           <h2 className="section-title">Ready to Book Your Event?</h2>
           <p style={{ maxWidth: '600px', margin: '0 auto 1.5rem', fontSize: '1.1rem' }}>
@@ -167,7 +196,7 @@ const Home = () => {
               Get a Free Quote
             </Link>
             {settings?.businessEmail && (
-              <a href={`mailto:${settings.businessEmail}`} className="btn btn-outline" style={{ borderColor: 'var(--white)', color: 'var(--white)' }}>
+              <a href={`mailto:${settings.businessEmail}`} className="btn btn-outline">
                 Email Us
               </a>
             )}
@@ -176,7 +205,7 @@ const Home = () => {
       </div>
 
       {/* Final Scripture */}
-      <div className="scripture-banner">
+      <div className="scripture-banner menu-reveal">
         "Don't wait to get better to change your life. Change your life so you can be better."
         <span className="scripture-ref">- Milk & Honey Coffee</span>
       </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import api, { getImageUrl } from '../../utils/api';
 import { useDarkMode } from '../../hooks/useDarkMode';
+import Loading from '../layout/Loading';
 
 const CATEGORIES = [
   { value: 'all', label: 'All' },
@@ -92,7 +93,7 @@ const Menu = () => {
 
   const allMilkOptions = [...new Set(products.flatMap(p => p.milkOptions || []))];
 
-  if (loading) return <div className="loading-spinner">Loading menu...</div>;
+  if (loading) return <Loading text="Brewing your menu..." />;
 
   let groupIndex = 0;
 
