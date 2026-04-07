@@ -6,13 +6,25 @@ const path = require('path');
 let storageOptions = {};
 if (process.env.GCS_KEY_JSON) {
   try {
-    storageOptions = { credentials: JSON.parse(process.env.GCS_KEY_JSON) };
+    let keyJson = process.env.GCS_KEY_JSON.trim();
+    // Strip surrounding single quotes if they exist
+    if (keyJson.startsWith("'") && keyJson.endsWith("'")) {
+      keyJson = keyJson.slice(1, -1);
+    }
+    const credentials = JSON.parse(keyJson);
+    // Ensure private_key has correct newline formatting
+    if (credentials.private_key) {
+      credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
+    }
+    storageOptions = { credentials };
+    console.log('Successfully initialized GCS with GCS_KEY_JSON');
   } catch (err) {
     console.error('Failed to parse GCS_KEY_JSON from environment:', err.message);
     // Fallback to file if parsing fails
     storageOptions = { keyFilename: process.env.GCS_KEY_FILE || path.join(__dirname, '../config/gcs-key.json') };
   }
 } else {
+  console.log('GCS_KEY_JSON not found, falling back to keyFilename');
   storageOptions = { keyFilename: process.env.GCS_KEY_FILE || path.join(__dirname, '../config/gcs-key.json') };
 }
 
