@@ -60,7 +60,7 @@ router.post('/forgot-password', async (req, res) => {
     const user = await User.findOne({ email: email.toLowerCase() });
 
     if (!user) {
-      return res.status(404).json({ message: 'No account found with that email address' });
+      return res.status(404).json({ message: 'Email not found' });
     }
 
     // Generate reset token

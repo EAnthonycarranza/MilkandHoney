@@ -14,6 +14,7 @@ const Login = () => {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotMessage, setForgotMessage] = useState({ text: '', type: '' });
   const [sendingForgot, setSendingForgot] = useState(false);
+  const [showRegisterSuggestion, setShowRegisterSuggestion] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -36,17 +37,23 @@ const Login = () => {
   const handleForgotSubmit = async (e) => {
     e.preventDefault();
     setForgotMessage({ text: '', type: '' });
+    setShowRegisterSuggestion(false);
     setSendingForgot(true);
 
     try {
       const { data } = await api.post('/auth/forgot-password', { email: forgotEmail });
       setForgotMessage({ text: data.message, type: 'success' });
-      setTimeout(() => setShowForgot(false), 5000);
+      setTimeout(() => {
+        if (!showRegisterSuggestion) setShowForgot(false);
+      }, 5000);
     } catch (err) {
-      setForgotMessage({ 
-        text: err.response?.data?.message || 'Failed to send reset email', 
-        type: 'error' 
-      });
+      const msg = err.response?.data?.message || 'Failed to send reset email';
+      if (err.response?.status === 404) {
+        setForgotMessage({ text: 'Email not found', type: 'error' });
+        setShowRegisterSuggestion(true);
+      } else {
+        setForgotMessage({ text: msg, type: 'error' });
+      }
     } finally {
       setSendingForgot(false);
     }
@@ -124,11 +131,34 @@ const Login = () => {
               <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={sendingForgot}>
                 {sendingForgot ? 'Sending...' : 'Send Reset Link'}
               </button>
+
+              {showRegisterSuggestion && (
+                <div style={{ 
+                  marginTop: '1.5rem', 
+                  padding: '1rem', 
+                  background: 'var(--cream)', 
+                  borderRadius: '8px', 
+                  border: '1px solid var(--gold-light)',
+                  textAlign: 'center',
+                  fontSize: '0.9rem',
+                  animation: 'menuFadeUp 0.4s ease-out'
+                }}>
+                  <p style={{ marginBottom: '0.5rem', color: 'var(--brown)' }}>New to Milk & Honey?</p>
+                  <Link to="/register" style={{ color: 'var(--gold-dark)', fontWeight: 'bold', textDecoration: 'underline' }}>
+                    Create an account instead
+                  </Link>
+                </div>
+              )}
+
               <button 
                 type="button" 
                 className="btn btn-outline" 
                 style={{ width: '100%', marginTop: '1rem' }} 
-                onClick={() => setShowForgot(false)}
+                onClick={() => {
+                  setShowForgot(false);
+                  setShowRegisterSuggestion(false);
+                  setForgotMessage({ text: '', type: '' });
+                }}
               >
                 Back to Login
               </button>
