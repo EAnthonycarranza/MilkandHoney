@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../utils/api';
 
+const ITEMS_PER_PAGE = 6;
+
 const Gallery = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const [lightbox, setLightbox] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     api.get('/gallery')
@@ -14,6 +17,11 @@ const Gallery = () => {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  // Reset to page 1 when category changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory]);
 
   const categories = [
     { key: 'all', label: 'All' },
@@ -25,8 +33,20 @@ const Gallery = () => {
   ];
 
   const filtered = activeCategory === 'all' ? items : items.filter(i => i.category === activeCategory);
+  
+  // Pagination logic
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const paginatedItems = filtered.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
-  const openLightbox = (index) => setLightbox(index);
+  const openLightbox = (index) => {
+    // index is relative to paginatedItems, need absolute index in filtered
+    const absoluteIndex = (currentPage - 1) * ITEMS_PER_PAGE + index;
+    setLightbox(absoluteIndex);
+  };
+  
   const closeLightbox = () => setLightbox(null);
   const nextImage = () => setLightbox((prev) => (prev + 1) % filtered.length);
   const prevImage = () => setLightbox((prev) => (prev - 1 + filtered.length) % filtered.length);
@@ -70,17 +90,47 @@ const Gallery = () => {
             </div>
 
             {filtered.length > 0 ? (
-              <div className="gallery-grid">
-                {filtered.map((item, index) => (
-                  <div key={item._id} className="gallery-item" onClick={() => openLightbox(index)}>
-                    <img src={item.image} alt={item.title || 'Gallery image'} />
-                    <div className="gallery-item-overlay">
-                      {item.title && <h4>{item.title}</h4>}
-                      {item.caption && <p>{item.caption}</p>}
+              <>
+                <div className="gallery-grid">
+                  {paginatedItems.map((item, index) => (
+                    <div key={item._id} className="gallery-item" onClick={() => openLightbox(index)}>
+                      <img src={item.image} alt={item.title || 'Gallery image'} />
+                      <div className="gallery-item-overlay">
+                        {item.title && <h4>{item.title}</h4>}
+                        {item.caption && <p>{item.caption}</p>}
+                      </div>
                     </div>
+                  ))}
+                </div>
+
+                {/* Pagination Dots */}
+                {totalPages > 1 && (
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginTop: '3rem' }}>
+                    {[...Array(totalPages)].map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          setCurrentPage(i + 1);
+                          window.scrollTo({ top: document.querySelector('.gallery-grid').offsetTop - 150, behavior: 'smooth' });
+                        }}
+                        style={{
+                          width: '12px',
+                          height: '12px',
+                          borderRadius: '50%',
+                          border: 'none',
+                          background: currentPage === i + 1 ? 'var(--gold)' : 'var(--cream-dark)',
+                          cursor: 'pointer',
+                          padding: 0,
+                          transition: 'all 0.3s ease',
+                          transform: currentPage === i + 1 ? 'scale(1.2)' : 'scale(1)',
+                          boxShadow: currentPage === i + 1 ? '0 0 8px rgba(200, 169, 81, 0.4)' : 'none'
+                        }}
+                        aria-label={`Go to page ${i + 1}`}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             ) : (
               <div style={{ textAlign: 'center', padding: '3rem' }}>
                 <h3 style={{ color: 'var(--gold-dark)' }}>No Photos Yet</h3>

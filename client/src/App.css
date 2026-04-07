@@ -4431,3 +4431,9 @@ a.contact-tile:hover span {
   background-color: rgba(200, 169, 81, 0.05);
   box-shadow: inset 4px 0 0 var(--gold);
 }
+
+.admin-gallery-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  border: 2px dashed var(--gold);
+}

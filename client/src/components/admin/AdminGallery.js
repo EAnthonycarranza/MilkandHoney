@@ -17,6 +17,12 @@ const AdminGallery = () => {
   // Delete Modal State
   const [deleteItemId, setDeleteItemId] = useState(null);
 
+  // Preview State
+  const [previewItem, setPreviewItem] = useState(null);
+
+  // Drag and Drop State
+  const [draggedItemIndex, setDraggedItemId] = useState(null);
+
   // Crop Modal State
   const [imageSrc, setImageSrc] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -156,6 +162,48 @@ const AdminGallery = () => {
     }
   };
 
+  // Drag and Drop Handlers
+  const onDragStart = (e, index) => {
+    setDraggedItemId(index);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/html", e.target.parentNode);
+    e.dataTransfer.setDragImage(e.target.parentNode, 20, 20);
+  };
+
+  const onDragOver = (index) => {
+    const draggedOverItem = items[index];
+
+    // if the item is dragged over itself, ignore
+    if (items[draggedItemIndex] === draggedOverItem) {
+      return;
+    }
+
+    // filter out the currently dragged item of the list
+    let reorderedItems = items.filter(item => item !== items[draggedItemIndex]);
+
+    // add the dragged item after the dragged over item
+    reorderedItems.splice(index, 0, items[draggedItemIndex]);
+
+    setItems(reorderedItems);
+  };
+
+  const onDragEnd = async () => {
+    setDraggedItemId(null);
+    
+    // Save new order to backend
+    try {
+      const orderUpdates = items.map((item, index) => ({
+        id: item._id,
+        order: index
+      }));
+      await api.post('/gallery/reorder', { items: orderUpdates });
+    } catch (err) {
+      console.error('Failed to save order:', err);
+      alert('Failed to save image order');
+      fetchItems(); // Reset to original order on failure
+    }
+  };
+
   const categoryLabels = {
     events: 'Events', menu: 'Menu', 'behind-the-scenes': 'Behind the Scenes', setup: 'Cart Setup', other: 'Other',
   };
@@ -172,12 +220,27 @@ const AdminGallery = () => {
         </div>
       </div>
 
+      <p style={{ fontSize: '0.85rem', color: 'var(--gray)', marginBottom: '1rem' }}>
+        Tip: Drag and drop images to change their display order.
+      </p>
+
       <div className="admin-gallery-grid">
-        {items.map(item => (
-          <div key={item._id} className="admin-gallery-item">
-            <div className="admin-gallery-img">
+        {items.map((item, index) => (
+          <div 
+            key={item._id} 
+            className={`admin-gallery-item ${draggedItemIndex === index ? 'dragging' : ''}`}
+            draggable
+            onDragStart={(e) => onDragStart(e, index)}
+            onDragOver={() => onDragOver(index)}
+            onDragEnd={onDragEnd}
+            style={{ cursor: 'move' }}
+          >
+            <div className="admin-gallery-img" onClick={() => setPreviewItem(item)} style={{ cursor: 'zoom-in' }}>
               <img src={item.image} alt={item.title || 'Gallery'} />
               {!item.published && <span className="draft-badge">Draft</span>}
+              <div className="gallery-item-overlay" style={{ opacity: 0.2 }}>
+                <i className="fas fa-search-plus" style={{ color: 'white', fontSize: '1.5rem' }}></i>
+              </div>
             </div>
             <div className="admin-gallery-info">
               <span className="tag">{categoryLabels[item.category] || item.category}</span>
@@ -198,6 +261,21 @@ const AdminGallery = () => {
           </div>
         )}
       </div>
+
+      {/* Preview Modal */}
+      {previewItem && (
+        <div className="lightbox-overlay" onClick={() => setPreviewItem(null)}>
+          <div className="lightbox-content" onClick={e => e.stopPropagation()}>
+            <button className="lightbox-close" onClick={() => setPreviewItem(null)}>&times;</button>
+            <img src={previewItem.image} alt={previewItem.title || 'Preview'} style={{ maxHeight: '80vh' }} />
+            <div className="lightbox-caption">
+              <h4>{previewItem.title || 'Gallery Preview'}</h4>
+              <p>{previewItem.caption}</p>
+              <p style={{ fontSize: '0.8rem', opacity: 0.8 }}>Category: {categoryLabels[previewItem.category]}</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {deleteItemId && (

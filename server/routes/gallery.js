@@ -100,6 +100,25 @@ router.put('/:id', adminAuth, upload.single('image'), uploadToGCS('gallery'), as
   }
 });
 
+// Reorder gallery items (admin)
+router.post('/reorder', adminAuth, async (req, res) => {
+  try {
+    const { items } = req.body; // Array of { id, order }
+    if (!items || !Array.isArray(items)) {
+      return res.status(400).json({ message: 'Invalid items array' });
+    }
+
+    const updates = items.map(item =>
+      Gallery.findByIdAndUpdate(item.id, { order: item.order })
+    );
+    await Promise.all(updates);
+
+    res.json({ message: 'Gallery reordered successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Proxy gallery image to avoid CORS issues for cropping (admin)
 router.get('/proxy-image/:id', adminAuth, async (req, res) => {
   try {
