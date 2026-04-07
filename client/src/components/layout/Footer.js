@@ -23,10 +23,10 @@ const Footer = () => {
         </div>
         <div className="footer-section">
           <h4>Quick Links</h4>
-          <p><Link to="/">Home</Link></p>
-          <p><Link to="/menu">Our Menu</Link></p>
-          <p><Link to="/about">About Us</Link></p>
-          <p><Link to="/quote">Get a Free Quote</Link></p>
+          <p><Link to="/" onClick={() => window.scrollTo(0, 0)}>Home</Link></p>
+          <p><Link to="/menu" onClick={() => window.scrollTo(0, 0)}>Our Menu</Link></p>
+          <p><Link to="/about" onClick={() => window.scrollTo(0, 0)}>About Us</Link></p>
+          <p><Link to="/quote" onClick={() => window.scrollTo(0, 0)}>Get a Free Quote</Link></p>
         </div>
         <div className="footer-section">
           <h4>Contact Us</h4>

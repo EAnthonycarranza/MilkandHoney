@@ -13,10 +13,15 @@ const Navbar = () => {
 
   const isActive = (path) => location.pathname === path ? 'active' : '';
 
+  const handleLinkClick = () => {
+    window.scrollTo(0, 0);
+    setMenuOpen(false);
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        <Link to="/" className="navbar-brand">
+        <Link to="/" className="navbar-brand" onClick={handleLinkClick}>
           <img src={isDark ? DarkModeLogo : Logo} alt="Milk & Honey Coffee" className="brand-logo" />
           <span className="brand-text">Milk & Honey</span>
         </Link>
@@ -28,26 +33,26 @@ const Navbar = () => {
         </button>
 
         <ul className={`navbar-links ${menuOpen ? 'open' : ''}`}>
-          <li><Link to="/" className={isActive('/')} onClick={() => setMenuOpen(false)}>Home</Link></li>
-          <li><Link to="/menu" className={isActive('/menu')} onClick={() => setMenuOpen(false)}>Menu</Link></li>
-          <li><Link to="/events" className={isActive('/events')} onClick={() => setMenuOpen(false)}>Events</Link></li>
-          <li><Link to="/gallery" className={isActive('/gallery')} onClick={() => setMenuOpen(false)}>Gallery</Link></li>
-          <li><Link to="/about" className={isActive('/about')} onClick={() => setMenuOpen(false)}>About</Link></li>
-          <li><Link to="/quote" className={isActive('/quote')} onClick={() => setMenuOpen(false)}>Get a Quote</Link></li>
+          <li><Link to="/" className={isActive('/')} onClick={handleLinkClick}>Home</Link></li>
+          <li><Link to="/menu" className={isActive('/menu')} onClick={handleLinkClick}>Menu</Link></li>
+          <li><Link to="/events" className={isActive('/events')} onClick={handleLinkClick}>Events</Link></li>
+          <li><Link to="/gallery" className={isActive('/gallery')} onClick={handleLinkClick}>Gallery</Link></li>
+          <li><Link to="/about" className={isActive('/about')} onClick={handleLinkClick}>About</Link></li>
+          <li><Link to="/quote" className={isActive('/quote')} onClick={handleLinkClick}>Get a Quote</Link></li>
 
           {user ? (
             <>
               {isAdmin && (
-                <li><Link to="/admin" className={isActive('/admin')} onClick={() => setMenuOpen(false)}>Admin</Link></li>
+                <li><Link to="/admin" className={isActive('/admin')} onClick={handleLinkClick}>Admin</Link></li>
               )}
               <li>
-                <Link to="/" onClick={(e) => { e.preventDefault(); logout(); setMenuOpen(false); }}>
+                <Link to="/" onClick={(e) => { e.preventDefault(); logout(); handleLinkClick(); }}>
                   Logout
                 </Link>
               </li>
             </>
           ) : (
-            <li><Link to="/login" className={isActive('/login')} onClick={() => setMenuOpen(false)}>Login</Link></li>
+            <li><Link to="/login" className={isActive('/login')} onClick={handleLinkClick}>Login</Link></li>
           )}
         </ul>
       </div>
